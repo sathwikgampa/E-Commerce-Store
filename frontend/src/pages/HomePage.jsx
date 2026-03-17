@@ -23,7 +23,7 @@ const HomePage = () => {
                 Shop Now
                 <span className="material-symbols-outlined">arrow_forward</span>
               </Link>
-              <Link to="/books" className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 px-8 py-4 rounded-xl font-bold text-lg text-charcoal dark:text-white hover:bg-slate-50 transition-all">
+              <Link to="/books" className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 px-8 py-4 rounded-xl font-bold text-lg text-charcoal shadow-sm dark:text-white hover:bg-slate-50 hover:border-slate-300 transition-all">
                 View Catalog
               </Link>
             </div>
@@ -48,11 +48,11 @@ const HomePage = () => {
       </section>
 
       {/* Trust Signals */}
-      <section className="bg-white dark:bg-background-dark py-12 border-y border-slate-100 dark:border-slate-800">
+      <section className="py-12 border-y border-slate-200 dark:border-slate-800">
         <div className="max-w-7xl mx-auto px-4">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            <div className="flex items-center gap-4 p-6 rounded-2xl bg-slate-50 dark:bg-slate-800/50 transition-colors hover:bg-primary/5 group">
-              <div className="bg-white dark:bg-slate-800 p-3 rounded-xl shadow-sm group-hover:bg-primary group-hover:text-white transition-all">
+            <div className="flex items-center gap-4 p-6 rounded-2xl bg-white shadow-sm border border-slate-100 dark:bg-slate-800/50 transition-colors hover:border-primary/30 hover:shadow-md group">
+              <div className="bg-slate-50 border border-slate-100 dark:bg-slate-800 p-3 rounded-xl shadow-sm group-hover:bg-primary group-hover:text-white transition-all">
                 <span className="material-symbols-outlined text-3xl">local_shipping</span>
               </div>
               <div>
@@ -60,8 +60,8 @@ const HomePage = () => {
                 <p className="text-sm text-slate-500">Orders over $50</p>
               </div>
             </div>
-            <div className="flex items-center gap-4 p-6 rounded-2xl bg-slate-50 dark:bg-slate-800/50 transition-colors hover:bg-primary/5 group">
-              <div className="bg-white dark:bg-slate-800 p-3 rounded-xl shadow-sm group-hover:bg-primary group-hover:text-white transition-all">
+            <div className="flex items-center gap-4 p-6 rounded-2xl bg-white shadow-sm border border-slate-100 dark:bg-slate-800/50 transition-colors hover:border-primary/30 hover:shadow-md group">
+              <div className="bg-slate-50 border border-slate-100 dark:bg-slate-800 p-3 rounded-xl shadow-sm group-hover:bg-primary group-hover:text-white transition-all">
                 <span className="material-symbols-outlined text-3xl">verified</span>
               </div>
               <div>
@@ -69,8 +69,8 @@ const HomePage = () => {
                 <p className="text-sm text-slate-500">Authorized Distributor</p>
               </div>
             </div>
-            <div className="flex items-center gap-4 p-6 rounded-2xl bg-slate-50 dark:bg-slate-800/50 transition-colors hover:bg-primary/5 group">
-              <div className="bg-white dark:bg-slate-800 p-3 rounded-xl shadow-sm group-hover:bg-primary group-hover:text-white transition-all">
+            <div className="flex items-center gap-4 p-6 rounded-2xl bg-white shadow-sm border border-slate-100 dark:bg-slate-800/50 transition-colors hover:border-primary/30 hover:shadow-md group">
+              <div className="bg-slate-50 border border-slate-100 dark:bg-slate-800 p-3 rounded-xl shadow-sm group-hover:bg-primary group-hover:text-white transition-all">
                 <span className="material-symbols-outlined text-3xl">support_agent</span>
               </div>
               <div>
