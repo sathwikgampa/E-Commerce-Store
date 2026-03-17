@@ -1,16 +1,25 @@
-# React + Vite
+# E-Commerce Store Frontend
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+This acts as the client-facing side of the E-Commerce Store application, providing a fast, responsive, and modern user interface for both shoppers and store administrators.
 
-Currently, two official plugins are available:
+It was bootstrapped with [Vite](https://vitejs.dev/) and utilizes [React](https://reactjs.org/). 
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+## 🔌 Available Scripts
 
-## React Compiler
+In the frontend directory, you can run:
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+- `npm run dev`: Starts the local development hot-reload server (usually on `http://localhost:5173`).
+- `npm run build`: Bundles the app into static minified files for production in the `dist` folder.
+- `npm run lint`: Runs ESLint to find styling or code logic issues in the codebase.
+- `npm run preview`: Previews the production build locally.
 
-## Expanding the ESLint configuration
+## 🎨 Technologies & Libraries Used
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+- **React 19**: Core UI library.
+- **Tailwind CSS v4**: Utility-first styling framework.
+- **React Router DOM v7**: Page navigation and routing.
+- **Zustand**: Fast, scalable state management across components.
+- **Lucide React**: Icon library.
+- **Axios**: HTTP request handler for connecting to the backend.
+- **React Hook Form**: Form state management and validation.
+- **React Hot Toast**: Beautiful, simple notifications.
