@@ -12,7 +12,7 @@ const HomePage = () => {
               <span className="material-symbols-outlined text-sm">school</span>
               Empowering Learners
             </div>
-            <h1 className="text-5xl lg:text-7xl font-black text-charcoal dark:text-white leading-[1.1] tracking-tight">
+            <h1 className="text-5xl lg:text-7xl font-black text-black dark:text-white leading-[1.1] tracking-tight">
               Your Academic Journey, <span className="text-primary">Simplified.</span>
             </h1>
             <p className="text-lg text-slate-600 dark:text-slate-400 max-w-lg leading-relaxed">

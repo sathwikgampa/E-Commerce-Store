@@ -41,7 +41,11 @@ const Navbar = () => {
               )}
             </Link>
             
-            <Link to="/login" className="p-2 text-charcoal dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-full transition-colors block">
+            <Link title="Admin Login" to="/admin/login" className="p-2 text-charcoal dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-full transition-colors hidden sm:block">
+              <span className="material-symbols-outlined">shield_person</span>
+            </Link>
+            
+            <Link title="User Login" to="/login" className="p-2 text-charcoal dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-full transition-colors block">
               <span className="material-symbols-outlined">person</span>
             </Link>
           </div>
