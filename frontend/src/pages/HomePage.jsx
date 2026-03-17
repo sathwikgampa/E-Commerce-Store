@@ -1,131 +1,205 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { ArrowRight, Book, PenTool, Monitor, Award, Star, Truck, ShieldCheck, Clock } from 'lucide-react';
 
 const HomePage = () => {
   return (
-    <div className="bg-[#fafaf9]">
+    <main>
       {/* Hero Section */}
-      <section className="relative bg-white overflow-hidden">
-        <div className="absolute inset-0 bg-stone-100/50" />
-        <div className="w-full mx-auto px-4 sm:px-6 lg:px-8 pt-16 pb-20 relative">
-          <div className="text-center max-w-4xl mx-auto">
-             <h1 className="text-4xl md:text-5xl lg:text-6xl font-extrabold text-stone-900 tracking-tight leading-tight">
-              Your Most Trusted <br className="hidden md:block" />
-              <span className="text-rose-600">E-Commerce Store</span>
+      <section className="relative overflow-hidden pt-16 pb-20 lg:pt-24 lg:pb-32 px-4">
+        <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+          <div className="space-y-8">
+            <div className="inline-flex items-center gap-2 bg-primary/10 text-primary px-3 py-1 rounded-full text-xs font-bold tracking-wider uppercase">
+              <span className="material-symbols-outlined text-sm">school</span>
+              Empowering Learners
+            </div>
+            <h1 className="text-5xl lg:text-7xl font-black text-charcoal dark:text-white leading-[1.1] tracking-tight">
+              Your Academic Journey, <span className="text-primary">Simplified.</span>
             </h1>
-            <p className="mt-6 text-lg md:text-xl text-stone-600 max-w-2xl mx-auto">
-              Find everything you need from school textbooks to college materials, competitive exam guides, and premium stationery. Everything in one place.
+            <p className="text-lg text-slate-600 dark:text-slate-400 max-w-lg leading-relaxed">
+              Premium textbooks, artisan stationery, and essential exam prep materials curated for the modern student. Achieve excellence with the best resources at your fingertips.
             </p>
-            <div className="mt-8 flex flex-col sm:flex-row gap-4 justify-center">
-              <Link to="/books" className="inline-flex items-center justify-center px-6 py-3 border border-transparent text-base font-semibold rounded-lg shadow-sm text-white bg-rose-600 hover:bg-rose-700 transition hover:shadow-md">
-                Browse Catalog
-                <ArrowRight className="ml-2 -mr-1 h-5 w-5" />
+            <div className="flex flex-wrap gap-4 pt-4">
+              <Link to="/books" className="bg-primary hover:bg-red-700 text-white px-8 py-4 rounded-xl font-bold text-lg shadow-lg shadow-primary/20 transition-all flex items-center gap-2">
+                Shop Now
+                <span className="material-symbols-outlined">arrow_forward</span>
               </Link>
-              <Link to="/contact" className="inline-flex items-center justify-center px-6 py-3 border-2 border-stone-200 text-base font-semibold rounded-lg text-stone-700 bg-white hover:bg-stone-50 hover:border-stone-300 transition">
-                Visit Our Store
+              <Link to="/books" className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 px-8 py-4 rounded-xl font-bold text-lg text-charcoal dark:text-white hover:bg-slate-50 transition-all">
+                View Catalog
               </Link>
+            </div>
+          </div>
+          <div className="relative">
+            <div className="absolute -z-10 top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[120%] h-[120%] bg-primary/5 rounded-full blur-3xl"></div>
+            <div className="aspect-[4/3] rounded-3xl bg-slate-200 dark:bg-slate-800 overflow-hidden shadow-2xl relative">
+              <img alt="Composition of textbooks and premium pens" className="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuA7SsVlFL4LvCEXfHGOfxfU1LGpzossLLfoi42X_nlS6Ze5EsHwx6q1tBhqbS3KrmVpzgU7Pa5I0uEGUGF8Oh_DgiW5UChNmyHXTvfuApv1HwqdKXsgrfv2jof07Ekr_NAu4TorMYgFFtOi-oSewEds00ZW22DY3cQpH2eJC4c2bNy75EWyvaHSZuEikxIxIJ2vI_Td5JhNXEG4lSRBCrR3scwgbc5aHDcu_vk-esPi4HVzQHZjk3gKkqQxl7NhJaPNAnmKYVvv0NPm" />
+              <div className="absolute bottom-6 right-6 bg-white/90 dark:bg-slate-900/90 backdrop-blur-md p-4 rounded-2xl shadow-xl border border-white/20">
+                <div className="flex gap-1 text-primary">
+                  <span className="material-symbols-outlined fill-1">star</span>
+                  <span className="material-symbols-outlined fill-1">star</span>
+                  <span className="material-symbols-outlined fill-1">star</span>
+                  <span className="material-symbols-outlined fill-1">star</span>
+                  <span className="material-symbols-outlined fill-1">star_half</span>
+                </div>
+                <p className="text-xs font-bold text-charcoal dark:text-white mt-1">4.9/5 Student Rating</p>
+              </div>
             </div>
           </div>
         </div>
       </section>
 
-      {/* Categories */}
-      <section className="py-16 bg-stone-50">
-        <div className="w-full mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-10">
-            <h2 className="text-3xl font-bold text-stone-900">Shop by Category</h2>
-            <p className="mt-4 text-stone-500">Discover our wide range of products tailored for your needs.</p>
+      {/* Trust Signals */}
+      <section className="bg-white dark:bg-background-dark py-12 border-y border-slate-100 dark:border-slate-800">
+        <div className="max-w-7xl mx-auto px-4">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            <div className="flex items-center gap-4 p-6 rounded-2xl bg-slate-50 dark:bg-slate-800/50 transition-colors hover:bg-primary/5 group">
+              <div className="bg-white dark:bg-slate-800 p-3 rounded-xl shadow-sm group-hover:bg-primary group-hover:text-white transition-all">
+                <span className="material-symbols-outlined text-3xl">local_shipping</span>
+              </div>
+              <div>
+                <h3 className="font-bold text-charcoal dark:text-white">Free Shipping</h3>
+                <p className="text-sm text-slate-500">Orders over $50</p>
+              </div>
+            </div>
+            <div className="flex items-center gap-4 p-6 rounded-2xl bg-slate-50 dark:bg-slate-800/50 transition-colors hover:bg-primary/5 group">
+              <div className="bg-white dark:bg-slate-800 p-3 rounded-xl shadow-sm group-hover:bg-primary group-hover:text-white transition-all">
+                <span className="material-symbols-outlined text-3xl">verified</span>
+              </div>
+              <div>
+                <h3 className="font-bold text-charcoal dark:text-white">Official Partner</h3>
+                <p className="text-sm text-slate-500">Authorized Distributor</p>
+              </div>
+            </div>
+            <div className="flex items-center gap-4 p-6 rounded-2xl bg-slate-50 dark:bg-slate-800/50 transition-colors hover:bg-primary/5 group">
+              <div className="bg-white dark:bg-slate-800 p-3 rounded-xl shadow-sm group-hover:bg-primary group-hover:text-white transition-all">
+                <span className="material-symbols-outlined text-3xl">support_agent</span>
+              </div>
+              <div>
+                <h3 className="font-bold text-charcoal dark:text-white">24/7 Support</h3>
+                <p className="text-sm text-slate-500">Always here to help</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Trending Now Carousel */}
+      <section className="py-20 bg-background-light dark:bg-background-dark px-4">
+        <div className="max-w-7xl mx-auto">
+          <div className="flex justify-between items-end mb-10">
+            <div>
+              <h2 className="text-3xl font-black text-charcoal dark:text-white">Trending Now</h2>
+              <p className="text-slate-500 mt-2">Curated selection of our most popular items this week.</p>
+            </div>
+            <div className="flex gap-2">
+              <button className="p-2 rounded-full border border-slate-200 dark:border-slate-800 hover:bg-primary hover:text-white transition-all">
+                <span className="material-symbols-outlined">chevron_left</span>
+              </button>
+              <button className="p-2 rounded-full border border-slate-200 dark:border-slate-800 hover:bg-primary hover:text-white transition-all">
+                <span className="material-symbols-outlined">chevron_right</span>
+              </button>
+            </div>
           </div>
           
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-            {[
-              { name: 'School Books', icon: Book, color: 'bg-blue-100 text-blue-600' },
-              { name: 'College Books', icon: Book, color: 'bg-indigo-100 text-indigo-600' },
-              { name: 'Competitive Exams', icon: Award, color: 'bg-amber-100 text-amber-600' },
-              { name: 'Stationery Items', icon: PenTool, color: 'bg-emerald-100 text-emerald-600' }
-            ].map((category, idx) => {
-              const Icon = category.icon;
-              return (
-                <Link key={idx} to={`/books?category=${category.name}`} className="group flex flex-col items-center p-6 bg-white rounded-2xl shadow-sm hover:shadow-md transition-all border border-stone-100">
-                  <div className={`p-4 rounded-full ${category.color} group-hover:scale-110 transition-transform`}>
-                    <Icon className="h-8 w-8" />
-                  </div>
-                  <h3 className="mt-4 font-semibold text-stone-900 text-center">{category.name}</h3>
-                </Link>
-              );
-            })}
-          </div>
-        </div>
-      </section>
-
-      {/* Featured Products */}
-      <section className="py-16">
-        <div className="w-full mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-end mb-8">
-            <div>
-              <h2 className="text-3xl font-bold text-stone-900">Featured Books</h2>
-              <p className="mt-2 text-stone-500">Handpicked selections for you.</p>
-            </div>
-            <Link to="/books" className="text-rose-600 font-medium hover:text-rose-700 flex items-center">
-              View all <ArrowRight className="ml-1 h-4 w-4" />
-            </Link>
-          </div>
-
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            {/* Dummy Featured Books */}
-            {[1, 2, 3, 4, 5, 6, 7, 8].map((item) => (
-              <div key={item} className="bg-white rounded-xl border border-stone-200 overflow-hidden hover:shadow-md transition-shadow flex flex-col">
-                <div className="h-56 bg-stone-100 p-6 flex justify-center items-center">
-                  <Book className="h-20 w-20 text-stone-300" />
-                </div>
-                <div className="p-4 flex flex-col flex-grow">
-                  <div className="flex justify-between items-start">
-                    <h3 className="font-semibold text-base text-stone-900 line-clamp-2">Example Book Title {item}</h3>
-                  </div>
-                  <p className="text-sm text-stone-500 mt-1">Author Name</p>
-                  <div className="mt-auto pt-4 flex items-center justify-between">
-                    <span className="font-bold text-lg text-stone-900">₹299</span>
-                    <button className="bg-rose-50 text-rose-600 px-4 py-2 text-sm rounded-lg font-medium hover:bg-rose-600 hover:text-white transition-colors">
-                      Add
-                    </button>
+          <div className="flex gap-6 overflow-x-auto hide-scrollbar pb-8 px-2 -mx-2">
+            {/* Product 1 */}
+            <div className="product-card flex-shrink-0 w-72 bg-white dark:bg-slate-800 rounded-2xl shadow-sm hover:shadow-xl transition-all border border-slate-100 dark:border-slate-700 p-4">
+              <div className="relative aspect-square rounded-xl overflow-hidden bg-slate-100 dark:bg-slate-700 mb-4">
+                <img alt="Advanced Calculus Textbook" className="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDJM1XzUdDNxTkQ3Za_RaFvWWwrvFN1vDoHph0BndkxKQWaxZj8gaLhftxFpoEfWe_DUlt6ZEqK1YIfnzVrv1nAqx1kQWZD3EDcYoQbtE63UdugQ0xcAsftO6kUVYe0YGVzBkuOF1bXTfPE1apZ4q_SfJVNwZ3coWy2jGoq8moyu12tJ8kmK5XyVmHeRCNDuwj6-NPi4BOj9afV0OddN6keBRAa4iqfO-scWnGICc4T0bJo540sFO1sTu7jimTSJfgJtvVWPZO6ixUn" />
+                <button className="cart-button absolute bottom-3 left-3 right-3 bg-primary text-white py-2.5 rounded-lg font-bold text-sm flex items-center justify-center gap-2 opacity-0 translate-y-2 transition-all duration-300">
+                  <span className="material-symbols-outlined text-sm">add_shopping_cart</span>
+                  Add to Cart
+                </button>
+              </div>
+              <div className="space-y-2">
+                <div className="flex justify-between items-start">
+                  <h3 className="font-bold text-charcoal dark:text-white leading-tight">Advanced Calculus: Concepts &amp; Tools</h3>
+                  <div className="flex items-center gap-1 text-amber-500">
+                    <span className="material-symbols-outlined text-sm fill-1">star</span>
+                    <span className="text-xs font-bold">4.8</span>
                   </div>
                 </div>
+                <div className="flex items-center justify-between mt-4">
+                  <span className="px-3 py-1 bg-charcoal text-white rounded-full text-sm font-bold">$89.99</span>
+                  <span className="text-xs text-slate-400 font-medium">Textbooks</span>
+                </div>
               </div>
-            ))}
-          </div>
-        </div>
-      </section>
+            </div>
 
-      {/* Store Highlights */}
-      <section className="py-16 bg-white border-y border-stone-100">
-        <div className="w-full mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 text-center divide-y md:divide-y-0 md:divide-x divide-stone-100">
-            <div className="p-6">
-              <div className="mx-auto w-12 h-12 bg-rose-100 text-rose-600 rounded-full flex items-center justify-center mb-4">
-                <ShieldCheck className="h-6 w-6" />
+            {/* Product 2 */}
+            <div className="product-card flex-shrink-0 w-72 bg-white dark:bg-slate-800 rounded-2xl shadow-sm hover:shadow-xl transition-all border border-slate-100 dark:border-slate-700 p-4">
+              <div className="relative aspect-square rounded-xl overflow-hidden bg-slate-100 dark:bg-slate-700 mb-4">
+                <img alt="Premium Fountain Pens" className="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDwIN8fiEkSEHUX-Y3sJfBOqdfc37LAa9E-KPiR06SE3AgAq5oy5rr10Qw9ULycZLuY5kt2MDOQCVJwRnbkjrpeOReVlxRX28PdbmigvpLVrjNiPl8Vyqb_v5i15QA6BJmzB01ve7WB71dpfHSt-hnpbmU7Y3mKKJcuRc-3ofUEkj5TwQMqwOOm6Y2eKY-P9U4dsuJMsU1aKT8ArsxayDJt_jO92iDTfg4Ll7mY1b-QlKOwku_1Cv7lAudEYXnIIBsEMRoIFQBfu18r" />
+                <button className="cart-button absolute bottom-3 left-3 right-3 bg-primary text-white py-2.5 rounded-lg font-bold text-sm flex items-center justify-center gap-2 opacity-0 translate-y-2 transition-all duration-300">
+                  <span className="material-symbols-outlined text-sm">add_shopping_cart</span>
+                  Add to Cart
+                </button>
               </div>
-              <h3 className="text-lg font-bold text-stone-900">100% Genuine</h3>
-              <p className="mt-2 text-sm text-stone-500">All books are directly from authorized publishers.</p>
+              <div className="space-y-2">
+                <div className="flex justify-between items-start">
+                  <h3 className="font-bold text-charcoal dark:text-white leading-tight">Artisan Scholar Fountain Pen Set</h3>
+                  <div className="flex items-center gap-1 text-amber-500">
+                    <span className="material-symbols-outlined text-sm fill-1">star</span>
+                    <span className="text-xs font-bold">4.9</span>
+                  </div>
+                </div>
+                <div className="flex items-center justify-between mt-4">
+                  <span className="px-3 py-1 bg-charcoal text-white rounded-full text-sm font-bold">$45.00</span>
+                  <span className="text-xs text-slate-400 font-medium">Stationery</span>
+                </div>
+              </div>
             </div>
-            <div className="p-6">
-              <div className="mx-auto w-12 h-12 bg-rose-100 text-rose-600 rounded-full flex items-center justify-center mb-4">
-                <Truck className="h-6 w-6" />
+
+            {/* Product 3 */}
+            <div className="product-card flex-shrink-0 w-72 bg-white dark:bg-slate-800 rounded-2xl shadow-sm hover:shadow-xl transition-all border border-slate-100 dark:border-slate-700 p-4">
+              <div className="relative aspect-square rounded-xl overflow-hidden bg-slate-100 dark:bg-slate-700 mb-4">
+                <img alt="Lab Essentials Kit" className="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCtBH7wYH38eP_5DH_N38R6jdYS1InUEestV2U_nxMJzfPq-yxWwMg-Zo4NEDTmjsImhu05WfkvupwEOFKkxQbnX7XaLz_PLn71hMDuCrtX9scPt3GH8Tn5n7a2hb8MuV9BbDxSJK27w4GC-OJRi0p5ko2GtJ2S79rTFLolOYdaBSQYcIGYwW7ico258H0EmyGRlFsgQv59RpY2NdLk2AM15bQmJEZEK7o9w4rsd0AoTVJSky7tUmRgXS40LCspq3XKT4f5wLuRgtH5" />
+                <button className="cart-button absolute bottom-3 left-3 right-3 bg-primary text-white py-2.5 rounded-lg font-bold text-sm flex items-center justify-center gap-2 opacity-0 translate-y-2 transition-all duration-300">
+                  <span className="material-symbols-outlined text-sm">add_shopping_cart</span>
+                  Add to Cart
+                </button>
               </div>
-              <h3 className="text-lg font-bold text-stone-900">Store Pickup</h3>
-              <p className="mt-2 text-sm text-stone-500">Order online and pickup right at our local store.</p>
+              <div className="space-y-2">
+                <div className="flex justify-between items-start">
+                  <h3 className="font-bold text-charcoal dark:text-white leading-tight">Advanced Lab Essentials Kit</h3>
+                  <div className="flex items-center gap-1 text-amber-500">
+                    <span className="material-symbols-outlined text-sm fill-1">star</span>
+                    <span className="text-xs font-bold">4.7</span>
+                  </div>
+                </div>
+                <div className="flex items-center justify-between mt-4">
+                  <span className="px-3 py-1 bg-charcoal text-white rounded-full text-sm font-bold">$12.50</span>
+                  <span className="text-xs text-slate-400 font-medium">Exams</span>
+                </div>
+              </div>
             </div>
-            <div className="p-6">
-              <div className="mx-auto w-12 h-12 bg-rose-100 text-rose-600 rounded-full flex items-center justify-center mb-4">
-                <Star className="h-6 w-6" />
+
+            {/* Product 4 */}
+            <div className="product-card flex-shrink-0 w-72 bg-white dark:bg-slate-800 rounded-2xl shadow-sm hover:shadow-xl transition-all border border-slate-100 dark:border-slate-700 p-4">
+              <div className="relative aspect-square rounded-xl overflow-hidden bg-slate-100 dark:bg-slate-700 mb-4">
+                <img alt="Graphing Calculator" className="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDHPBu-lKLpVraF8lQiWuRJ08gqy-INTXWKjx0Fgg4wGs9qqtgRfendAmD68xV7iV1OZAHRFP2VXGv43Ms-7LlgbPm5IfpsvPwdBsP0Ug0CQ_S-IdmyEHvF6eNlsJ3QuwDlBNaq9RrtGqnHn3ljJaLHxmZPDyORvcyMtNPWiLBn--zta9Q0PqjcXmxP4umC-K4tjfxis_pHa9n03GHcmqZ9GP1MTjT3ODv5KGPqk_f0PiEkRZhGilHbw0dKXhMbFFIKoY7oqvvI4wus" />
+                <button className="cart-button absolute bottom-3 left-3 right-3 bg-primary text-white py-2.5 rounded-lg font-bold text-sm flex items-center justify-center gap-2 opacity-0 translate-y-2 transition-all duration-300">
+                  <span className="material-symbols-outlined text-sm">add_shopping_cart</span>
+                  Add to Cart
+                </button>
               </div>
-              <h3 className="text-lg font-bold text-stone-900">Trusted Locally</h3>
-              <p className="mt-2 text-sm text-stone-500">Rated among the best stores in the area by students.</p>
+              <div className="space-y-2">
+                <div className="flex justify-between items-start">
+                  <h3 className="font-bold text-charcoal dark:text-white leading-tight">Pro Graphing Calculator X-200</h3>
+                  <div className="flex items-center gap-1 text-amber-500">
+                    <span className="material-symbols-outlined text-sm fill-1">star</span>
+                    <span className="text-xs font-bold">4.9</span>
+                  </div>
+                </div>
+                <div className="flex items-center justify-between mt-4">
+                  <span className="px-3 py-1 bg-charcoal text-white rounded-full text-sm font-bold">$129.00</span>
+                  <span className="text-xs text-slate-400 font-medium">Tech</span>
+                </div>
+              </div>
             </div>
           </div>
         </div>
       </section>
-    </div>
+    </main>
   );
 };
 

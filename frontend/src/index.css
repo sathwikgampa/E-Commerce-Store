@@ -1,23 +1,38 @@
 @import "tailwindcss";
 
 @theme {
-  --color-primary-50: #fff1f2;
-  --color-primary-100: #ffe4e6;
-  --color-primary-500: #f43f5e;
-  --color-primary-600: #e11d48;
-  --color-primary-700: #be123c;
+  --color-primary: #f20d0d;
+  --color-background-light: #f8f5f5;
+  --color-background-dark: #221010;
+  --color-charcoal: #333333;
+  --font-display: 'Inter', ui-sans-serif, system-ui, sans-serif;
   --font-sans: 'Inter', ui-sans-serif, system-ui, sans-serif;
 }
 
 @layer base {
   html {
-    /* Base font size for normal screens (16px) */
     font-size: 16px;
   }
   
-
-
   body {
-    @apply bg-orange-50 text-stone-900 font-sans antialiased;
+    @apply bg-background-light text-slate-900 font-sans antialiased;
+  }
+
+  .material-symbols-outlined {
+    font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+  }
+}
+
+@layer utilities {
+  .product-card:hover .cart-button {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  .hide-scrollbar::-webkit-scrollbar { 
+    display: none; 
+  }
+  .hide-scrollbar { 
+    -ms-overflow-style: none; 
+    scrollbar-width: none; 
   }
 }
