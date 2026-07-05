@@ -1,8 +1,17 @@
-import React from 'react';
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
+import { Product, CartItem } from '../types';
 
-const useCartStore = create(
+interface CartState {
+  items: CartItem[];
+  addToCart: (product: Product, quantity?: number) => void;
+  removeFromCart: (productId: string) => void;
+  updateQuantity: (productId: string, quantity: number) => void;
+  clearCart: () => void;
+  getTotalPrice: () => number;
+}
+
+const useCartStore = create<CartState>()(
   persist(
     (set, get) => ({
       items: [],

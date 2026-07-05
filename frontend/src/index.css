@@ -1,21 +1,68 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Outfit:wght@400;500;600;700;800;900&display=swap');
 @import "tailwindcss";
 
 @theme {
-  --color-primary: #f20d0d;
-  --color-background-light: #f0f2f5;
-  --color-background-dark: #221010;
-  --color-charcoal: #333333;
-  --font-display: 'Inter', ui-sans-serif, system-ui, sans-serif;
+  /* Brand Colors */
+  --color-primary: #0A3D91;
+  --color-primary-dark: #082C6C;
+  --color-accent: #D4AF37;
+  --color-accent-dark: #B8961F;
+
+  /* Backgrounds */
+  --color-background-light: #F6F5F1;
+  --color-background-off: #F8FAFC;
+  --color-background-dark: #040D21;
+  --color-charcoal: #0F172A;
+
+  /* Fonts */
+  --font-display: 'Outfit', 'Inter', ui-sans-serif, system-ui, sans-serif;
   --font-sans: 'Inter', ui-sans-serif, system-ui, sans-serif;
+
+  /* Animations */
+  --animate-float: float 6s ease-in-out infinite;
+  --animate-float-slow: float-slow 8s ease-in-out infinite;
+  --animate-pulse-slow: pulse 4s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  --animate-shiny-text: shiny-text 6s linear infinite;
+  --animate-fade-up: fade-up 0.5s ease forwards;
+
+  @keyframes float {
+    0%, 100% { transform: translateY(0px) rotate(0deg); }
+    50% { transform: translateY(-12px) rotate(1.5deg); }
+  }
+  @keyframes float-slow {
+    0%, 100% { transform: translateY(0px) rotate(0deg); }
+    50% { transform: translateY(-8px) rotate(-1deg); }
+  }
+  @keyframes shiny-text {
+    0% { background-position: 120% 0; }
+    100% { background-position: -120% 0; }
+  }
+  @keyframes fade-up {
+    0% { opacity: 0; transform: translateY(20px); }
+    100% { opacity: 1; transform: translateY(0); }
+  }
 }
 
 @layer base {
   html {
     font-size: 16px;
+    scroll-behavior: smooth;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
   }
-  
+
   body {
-    @apply bg-background-light text-slate-900 font-sans antialiased;
+    @apply bg-background-light text-slate-800 font-sans antialiased;
+    font-feature-settings: 'kern' 1, 'liga' 1, 'calt' 1;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-display;
+    letter-spacing: -0.02em;
+  }
+
+  p {
+    font-feature-settings: 'kern' 1;
   }
 
   .material-symbols-outlined {
@@ -24,15 +71,73 @@
 }
 
 @layer utilities {
+  /* Cart hover utility */
   .product-card:hover .cart-button {
     opacity: 1;
     transform: translateY(0);
   }
-  .hide-scrollbar::-webkit-scrollbar { 
-    display: none; 
+
+  /* Scrollbar hidden */
+  .hide-scrollbar::-webkit-scrollbar {
+    display: none;
   }
-  .hide-scrollbar { 
-    -ms-overflow-style: none; 
-    scrollbar-width: none; 
+  .hide-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
   }
+
+  /* Glassmorphism utilities */
+  .glass-card {
+    background: rgba(255, 255, 255, 0.75);
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+    border: 1px solid rgba(255, 255, 255, 0.45);
+  }
+  .glass-card-dark {
+    background: rgba(8, 44, 108, 0.15);
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+  }
+  .glass-nav {
+    background: rgba(255, 255, 255, 0.88);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+  }
+
+  /* Editorial text utilities */
+  .text-balance {
+    text-wrap: balance;
+  }
+  .tracking-editorial {
+    letter-spacing: -0.025em;
+  }
+}
+
+/* Swiper custom overrides */
+.swiper-pagination-bullet {
+  background: #CBD5E1 !important;
+  opacity: 1 !important;
+  width: 6px !important;
+  height: 6px !important;
+}
+.swiper-pagination-bullet-active {
+  background: #0A3D91 !important;
+  width: 20px !important;
+  border-radius: 4px !important;
+  transition: width 0.3s ease !important;
+}
+.swiper-button-next,
+.swiper-button-prev {
+  color: #0A3D91 !important;
+  background: white;
+  width: 36px !important;
+  height: 36px !important;
+  border-radius: 50%;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.12);
+}
+.swiper-button-next::after,
+.swiper-button-prev::after {
+  font-size: 12px !important;
+  font-weight: 900 !important;
 }
