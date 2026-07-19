@@ -39,7 +39,7 @@ const ProductDetail: React.FC = () => {
   if (isLoading) {
     return (
       <div className="w-full mx-auto px-4 py-20 text-center">
-        <div className="h-16 w-16 border-4 border-primary border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+        <div className="h-16 w-16 border-4 border-store-primary border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
         <p className="text-slate-500 font-bold">Loading product details...</p>
       </div>
     );
@@ -47,9 +47,9 @@ const ProductDetail: React.FC = () => {
 
   if (!product) {
     return (
-      <div className="w-full mx-auto px-4 py-20 text-center bg-[#F8FAFC]">
+      <div className="w-full mx-auto px-4 py-20 text-center bg-store-accent">
         <h2 className="text-2xl font-black text-slate-800">Product Not Found</h2>
-        <Link to="/books" className="text-primary hover:underline font-bold mt-4 inline-block">Back to Catalog</Link>
+        <Link to="/books" className="text-store-primary hover:underline font-bold mt-4 inline-block">Back to Catalog</Link>
       </div>
     );
   }
@@ -76,10 +76,10 @@ const ProductDetail: React.FC = () => {
   };
 
   return (
-    <div className="w-full mx-auto px-4 sm:px-6 lg:px-8 py-10 bg-[#F8FAFC] text-left">
+    <div className="w-full mx-auto px-4 sm:px-6 lg:px-8 py-10 bg-store-accent text-left">
       
       {/* Back button */}
-      <Link to="/books" className="inline-flex items-center text-xs font-bold text-slate-500 hover:text-primary mb-8 transition-colors">
+      <Link to="/books" className="inline-flex items-center text-xs font-bold text-slate-500 hover:text-store-primary mb-8 transition-colors">
         <ArrowLeft className="mr-1.5 h-4 w-4" /> Back to Store Catalog
       </Link>
       
@@ -110,18 +110,18 @@ const ProductDetail: React.FC = () => {
               
               {/* Category, Title, Author */}
               <div className="space-y-2">
-                <span className="text-[10px] font-black tracking-widest text-accent uppercase text-[#D4AF37]">{product.category}</span>
+                <span className="text-[10px] font-black tracking-widest text-store-primary uppercase">{product.category}</span>
                 <h1 className="text-2xl sm:text-3xl font-black text-slate-900 leading-tight">{product.title}</h1>
                 <p className="text-sm font-semibold text-slate-500">By {product.author}</p>
               </div>
 
               {/* Rating */}
               <div className="flex items-center gap-1.5 text-slate-400 text-xs font-bold">
-                <div className="flex text-amber-500">
+                <div className="flex text-store-primary">
                   {[...Array(5)].map((_, i) => (
                     <Star 
                       key={i} 
-                      className={`w-4 h-4 ${i < Math.floor(product.rating) ? 'fill-current text-accent text-[#D4AF37]' : ''}`} 
+                      className={`w-4 h-4 ${i < Math.floor(product.rating) ? 'fill-current text-store-primary' : ''}`} 
                     />
                   ))}
                 </div>
@@ -130,7 +130,7 @@ const ProductDetail: React.FC = () => {
 
               {/* Price Tags */}
               <div className="flex items-baseline gap-3">
-                <span className="text-3xl font-black text-primary">₹{product.price}</span>
+                <span className="text-3xl font-black text-store-primary">₹{product.price}</span>
                 {product.originalPrice && (
                   <span className="text-sm text-slate-400 font-bold line-through">₹{product.originalPrice}</span>
                 )}
@@ -170,17 +170,17 @@ const ProductDetail: React.FC = () => {
             <div className="mt-10 pt-6 border-t border-slate-100 flex flex-col sm:flex-row gap-4">
               
               {/* Quantity Select counter */}
-              <div className="flex items-center border border-slate-350 rounded-xl px-3.5 py-1.5 justify-between bg-white shrink-0 sm:w-36">
+              <div className="flex items-center border border-slate-300 rounded-xl px-3.5 py-3 justify-between bg-white shrink-0 sm:w-36 min-h-[48px]">
                 <button 
                   onClick={() => setQuantity(Math.max(1, quantity - 1))}
-                  className="p-1.5 text-slate-500 hover:text-slate-700 hover:bg-slate-150 rounded-md transition font-black"
+                  className="p-1.5 text-slate-500 hover:text-slate-700 hover:bg-slate-100 rounded-md transition font-black"
                 >
                   -
                 </button>
                 <span className="w-10 text-center font-bold text-slate-800">{quantity}</span>
                 <button 
                   onClick={() => setQuantity(quantity + 1)}
-                  className="p-1.5 text-slate-500 hover:text-slate-700 hover:bg-slate-150 rounded-md transition font-black"
+                  className="p-1.5 text-slate-500 hover:text-slate-700 hover:bg-slate-100 rounded-md transition font-black"
                 >
                   +
                 </button>
@@ -190,19 +190,19 @@ const ProductDetail: React.FC = () => {
               <button 
                 onClick={handleAddToCart}
                 disabled={!product.inStock}
-                className="flex-grow flex justify-center items-center px-8 py-4 bg-primary hover:bg-primary-dark text-white font-bold rounded-xl shadow-md transition-all active:scale-95 disabled:bg-slate-200 disabled:text-slate-400 disabled:cursor-not-allowed"
+                className="flex-grow flex justify-center items-center px-8 py-3.5 bg-store-primary hover:bg-store-primary-dark text-white font-bold rounded-xl shadow-md transition-all active:scale-95 disabled:bg-slate-200 disabled:text-slate-400 disabled:cursor-not-allowed min-h-[48px]"
               >
-                <ShoppingCart className="w-4 h-4 mr-2 text-accent text-[#D4AF37]" />
+                <ShoppingCart className="w-4 h-4 mr-2 text-white" />
                 Add to Shopping Cart
               </button>
 
               {/* Favorite Wishlist Icon Button */}
               <button 
                 onClick={handleToggleWishlist}
-                className={`p-4 rounded-xl border border-slate-200 transition-all flex items-center justify-center active:scale-95 ${
+                className={`p-4 rounded-xl border border-slate-200 transition-all flex items-center justify-center active:scale-95 min-h-[48px] ${
                   isFavorited 
                     ? 'bg-rose-50 text-rose-500 border-rose-100 hover:bg-rose-100' 
-                    : 'bg-slate-50 text-slate-400 hover:bg-slate-100 hover:text-slate-650'
+                    : 'bg-slate-50 text-slate-400 hover:bg-slate-100 hover:text-slate-655'
                 }`}
                 title="Toggle Wishlist"
               >

@@ -32,13 +32,13 @@ const UserLogin: React.FC = () => {
   };
 
   return (
-    <div className="min-h-[75vh] flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8 bg-[#F8FAFC]">
+    <div className="min-h-[75vh] flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8 bg-store-accent">
       <div className="max-w-md w-full space-y-8 bg-white p-8 rounded-2xl border border-slate-200/80 shadow-xs text-left">
         
         {/* Title details */}
         <div className="text-center">
-          <div className="bg-[#0A3D91] text-white p-3.5 rounded-full inline-block mb-4 shadow-sm">
-            <User className="w-8 h-8 text-accent text-[#D4AF37]" />
+          <div className="bg-store-primary text-white p-3.5 rounded-full inline-block mb-4 shadow-sm">
+            <User className="w-8 h-8 text-white" />
           </div>
           <h2 className="text-2xl font-black text-slate-900 tracking-tight">
              {isLogin ? 'Customer Sign In' : 'Create Account'}
@@ -61,7 +61,7 @@ const UserLogin: React.FC = () => {
                 <input 
                   type="text" 
                   required={!isLogin}
-                  className="w-full pl-10 pr-4 py-3 rounded-xl text-xs font-semibold bg-[#F8FAFC] border border-slate-200 outline-none transition focus:bg-white focus:ring-1 focus:ring-primary" 
+                  className="w-full pl-10 pr-4 py-3 rounded-xl text-xs font-semibold bg-[#F8FAFC] border border-slate-200 outline-none transition focus:bg-white focus:ring-1 focus:ring-store-primary" 
                   placeholder="e.g. Ramesh Kumar"
                   value={name}
                   onChange={(e) => setName(e.target.value)}
@@ -80,7 +80,7 @@ const UserLogin: React.FC = () => {
               <input 
                 type="email" 
                 required 
-                className="w-full pl-10 pr-4 py-3 rounded-xl text-xs font-semibold bg-[#F8FAFC] border border-slate-200 outline-none transition focus:bg-white focus:ring-1 focus:ring-primary" 
+                className="w-full pl-10 pr-4 py-3 rounded-xl text-xs font-semibold bg-[#F8FAFC] border border-slate-200 outline-none transition focus:bg-white focus:ring-1 focus:ring-store-primary" 
                 placeholder="you@domain.com"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
@@ -98,7 +98,7 @@ const UserLogin: React.FC = () => {
               <input 
                 type="password" 
                 required 
-                className="w-full pl-10 pr-4 py-3 rounded-xl text-xs font-semibold bg-[#F8FAFC] border border-slate-200 outline-none transition focus:bg-white focus:ring-1 focus:ring-primary" 
+                className="w-full pl-10 pr-4 py-3 rounded-xl text-xs font-semibold bg-[#F8FAFC] border border-slate-200 outline-none transition focus:bg-white focus:ring-1 focus:ring-store-primary" 
                 placeholder="••••••••"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
@@ -107,7 +107,7 @@ const UserLogin: React.FC = () => {
           </div>
 
           <div className="pt-2">
-            <button type="submit" className="w-full flex justify-center py-3.5 px-4 border border-transparent rounded-xl shadow-xs text-xs font-bold text-white bg-[#0A3D91] hover:bg-[#082C6C] transition uppercase tracking-wider focus:outline-none">
+            <button type="submit" className="w-full flex justify-center py-3.5 px-4 border border-transparent rounded-xl shadow-xs text-xs font-bold text-white bg-store-primary hover:bg-store-primary-dark transition uppercase tracking-wider focus:outline-none min-h-[48px]">
               {isLogin ? 'Sign In' : 'Register Now'}
             </button>
           </div>
@@ -116,9 +116,9 @@ const UserLogin: React.FC = () => {
 
         <div className="text-center mt-6 text-xs text-slate-500 font-semibold border-t border-slate-100 pt-4">
           {isLogin ? (
-            <p>New to Sri Thirumala? <button onClick={() => setIsLogin(false)} className="text-primary font-bold hover:underline">Create an account</button></p>
+            <p>New to Sri Thirumala? <button onClick={() => setIsLogin(false)} className="text-store-primary font-bold hover:underline">Create an account</button></p>
           ) : (
-            <p>Already registered? <button onClick={() => setIsLogin(true)} className="text-primary font-bold hover:underline">Sign in instead</button></p>
+            <p>Already registered? <button onClick={() => setIsLogin(true)} className="text-store-primary font-bold hover:underline">Sign in instead</button></p>
           )}
         </div>
 

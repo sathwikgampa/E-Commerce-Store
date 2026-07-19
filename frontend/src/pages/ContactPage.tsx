@@ -29,11 +29,11 @@ const ContactPage: React.FC = () => {
   };
 
   return (
-    <div className="w-full mx-auto px-4 sm:px-6 lg:px-8 py-10 lg:py-16 bg-[#F8FAFC] text-left">
+    <div className="w-full mx-auto px-4 sm:px-6 lg:px-8 py-10 lg:py-16 bg-store-accent text-left">
       
       {/* Title block */}
       <div className="text-center max-w-2xl mx-auto mb-14 space-y-3">
-         <h1 className="text-3xl sm:text-4xl font-black text-primary tracking-tight text-[#0A3D91]">Contact Our Store</h1>
+         <h1 className="text-3xl sm:text-4xl font-black text-store-primary tracking-tight">Contact Our Store</h1>
          <p className="text-xs sm:text-sm text-slate-500 font-semibold leading-relaxed">
            Have a question about textbook availability, school bags, or bulk guides? Send us a message or visit us on Station Road.
          </p>
@@ -44,7 +44,7 @@ const ContactPage: React.FC = () => {
         {/* Left Side: Store Info */}
         <div className="lg:col-span-5 flex flex-col justify-between gap-6">
           <div className="bg-white p-6 sm:p-8 rounded-2xl border border-slate-200/80 shadow-xs space-y-6 relative overflow-hidden group">
-            <div className="absolute top-0 left-0 w-1.5 h-full bg-[#0A3D91]"></div>
+            <div className="absolute top-0 left-0 w-1.5 h-full bg-store-primary"></div>
             
             <h2 className="text-lg font-black text-slate-900">Sri Thirumala Store Details</h2>
             
@@ -52,7 +52,7 @@ const ContactPage: React.FC = () => {
               
               {/* Address */}
               <li className="flex items-start">
-                <div className="bg-blue-50 p-2.5 rounded-lg text-[#0A3D91] mr-4 border border-blue-100">
+                <div className="bg-store-peach-light p-2.5 rounded-lg text-store-primary mr-4 border border-store-peach-dark">
                   <MapPin className="w-5 h-5" />
                 </div>
                 <div>
@@ -66,7 +66,7 @@ const ContactPage: React.FC = () => {
               
               {/* Phone & Whatsapp */}
               <li className="flex items-start">
-                <div className="bg-amber-50 p-2.5 rounded-lg text-[#D4AF37] mr-4 border border-amber-100">
+                <div className="bg-store-peach-light p-2.5 rounded-lg text-store-primary mr-4 border border-store-peach-dark">
                   <Phone className="w-5 h-5" />
                 </div>
                 <div>
@@ -181,9 +181,9 @@ const ContactPage: React.FC = () => {
             <button 
               type="submit"
               disabled={isSubmitting}
-              className="w-full flex justify-center items-center gap-2 px-6 py-3.5 bg-primary hover:bg-primary-dark text-white font-bold rounded-xl shadow-xs transition active:scale-95 text-xs uppercase tracking-wider disabled:bg-slate-200"
+              className="w-full flex justify-center items-center gap-2 px-6 py-3.5 bg-store-primary hover:bg-store-primary-dark text-white font-bold rounded-xl shadow-xs transition active:scale-95 text-xs uppercase tracking-wider disabled:bg-slate-200 min-h-[48px]"
             >
-              <Send className="w-4 h-4 text-accent text-[#D4AF37]" /> Send Message
+              <Send className="w-4 h-4 text-white" /> Send Message
             </button>
 
           </form>

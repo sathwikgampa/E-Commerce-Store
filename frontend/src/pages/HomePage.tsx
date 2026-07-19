@@ -65,7 +65,7 @@ const HomePage: React.FC = () => {
   const bestSellers = products.filter((p) => p.rating >= 4.8);
 
   const categoriesList = [
-    { name: 'Textbooks', icon: BookOpen, count: '1,200+ Books', route: '/books?category=Textbooks', color: '#0A3D91', bg: '#EAF3FF' },
+    { name: 'Textbooks', icon: BookOpen, count: '1,200+ Books', route: '/books?category=Textbooks', color: '#FF7A50', bg: '#FFF7F5' },
     { name: 'Notebooks & Registers', icon: BookMarked, count: '300+ Varieties', route: '/books?category=Notebooks', color: '#6B4C13', bg: '#FFF8E7' },
     { name: 'School Supplies', icon: PenTool, count: '500+ Items', route: '/books?category=School Supplies', color: '#2D5016', bg: '#F0F7EC' },
     { name: 'Engineering Materials', icon: FileText, count: '800+ Books', route: '/books?category=Engineering Materials', color: '#3B1F7A', bg: '#F3EFFD' },
@@ -108,7 +108,7 @@ const HomePage: React.FC = () => {
   ];
 
   return (
-    <div className="w-full bg-[#F6F5F1] overflow-x-hidden">
+    <div className="w-full bg-store-accent overflow-x-hidden">
 
       {/* ═══════════════════════════════════════════════════
           SECTION 1 — SPLIT-SCREEN HERO
@@ -122,7 +122,7 @@ const HomePage: React.FC = () => {
             {/* Store Badge */}
             <div className="inline-flex items-center gap-2 mb-7 w-fit">
               <span className="h-px w-8 bg-[#D4AF37]"></span>
-              <span className="text-[10px] font-black uppercase tracking-[0.2em] text-[#D4AF37]">
+              <span className="text-[10px] font-black uppercase tracking-[0.2em] text-store-primary">
                 Established · Kamareddy · Station Road
               </span>
             </div>
@@ -135,7 +135,7 @@ const HomePage: React.FC = () => {
             >
               <motion.h1
                 variants={fadeUp}
-                className="text-[2.6rem] sm:text-[3.2rem] font-black leading-[1.1] text-[#0A3D91] tracking-tight max-w-lg"
+                className="text-[2.6rem] sm:text-[3.2rem] font-black leading-[1.1] text-store-primary tracking-tight max-w-lg"
               >
                 Sri Thirumala
                 <br />
@@ -152,10 +152,10 @@ const HomePage: React.FC = () => {
               <motion.div variants={fadeUp} className="flex flex-wrap gap-3 pt-2">
                 <Link
                   to="/books"
-                  className="inline-flex items-center gap-2 bg-[#0A3D91] hover:bg-[#082C6C] text-white px-6 py-3.5 rounded-lg font-bold text-sm transition-all duration-200 shadow-md hover:shadow-lg"
+                  className="inline-flex items-center gap-2 bg-store-primary hover:bg-store-primary-dark text-white px-6 py-3.5 rounded-lg font-bold text-sm transition-all duration-200 shadow-md hover:shadow-lg"
                 >
                   Browse Catalog
-                  <ArrowRight className="w-4 h-4 text-[#D4AF37]" />
+                  <ArrowRight className="w-4 h-4 text-store-primary" />
                 </Link>
                 <Link
                   to="/contact"
@@ -172,15 +172,15 @@ const HomePage: React.FC = () => {
               >
                 <div>
                   <p className="text-[11px] text-slate-400 font-bold uppercase tracking-wider">Products</p>
-                  <p className="text-xl font-black text-[#0A3D91] mt-0.5">3,500+</p>
+                  <p className="text-xl font-black text-store-primary mt-0.5">3,500+</p>
                 </div>
                 <div>
                   <p className="text-[11px] text-slate-400 font-bold uppercase tracking-wider">Categories</p>
-                  <p className="text-xl font-black text-[#0A3D91] mt-0.5">12</p>
+                  <p className="text-xl font-black text-store-primary mt-0.5">12</p>
                 </div>
                 <div>
                   <p className="text-[11px] text-slate-400 font-bold uppercase tracking-wider">Pickup</p>
-                  <p className="text-xl font-black text-[#0A3D91] mt-0.5">Same Day</p>
+                  <p className="text-xl font-black text-store-primary mt-0.5">Same Day</p>
                 </div>
               </motion.div>
             </motion.div>
@@ -201,30 +201,28 @@ const HomePage: React.FC = () => {
             {/* Content overlay - editorial grid */}
             <div className="relative z-10 p-8 sm:p-12 flex flex-col justify-between w-full">
 
-              {/* Top: two small featured items */}
               <div className="grid grid-cols-2 gap-4">
                 <div className="bg-white/80 backdrop-blur-sm rounded-xl p-4 border border-white/60 shadow-sm">
-                  <span className="text-[9px] font-black text-[#D4AF37] uppercase tracking-widest block mb-2">📚 Just In</span>
+                  <span className="text-[9px] font-black text-store-primary uppercase tracking-widest block mb-2">📚 Just In</span>
                   <p className="text-xs font-bold text-slate-800 leading-snug">TSPSC Group-IV<br />2024 Study Guide</p>
                   <p className="text-[10px] text-slate-500 mt-1">Vijeta Publications</p>
                 </div>
-                <div className="bg-[#0A3D91] rounded-xl p-4 border border-[#082C6C] shadow-sm">
-                  <span className="text-[9px] font-black text-[#D4AF37] uppercase tracking-widest block mb-2">⭐ Bestseller</span>
+                <div className="bg-store-primary rounded-xl p-4 border border-store-primary-dark shadow-sm">
+                  <span className="text-[9px] font-black text-store-primary uppercase tracking-widest block mb-2">⭐ Bestseller</span>
                   <p className="text-xs font-bold text-white leading-snug">RS Aggarwal<br />Quantitative Aptitude</p>
                   <p className="text-[10px] text-blue-300 mt-1">₹590 · In Stock</p>
                 </div>
               </div>
 
-              {/* Middle: Hero store image card */}
               <div className="my-6 rounded-2xl overflow-hidden shadow-xl border-4 border-white/70 relative" style={{ height: '260px' }}>
                 <img
                   src="https://images.unsplash.com/photo-1521587760476-6c12a4b040da?w=700&auto=format&fit=crop&q=80"
                   alt="Inside Sri Thirumala store bookshelves"
                   className="w-full h-full object-cover"
                 />
-                <div className="absolute inset-0 bg-gradient-to-t from-[#0A3D91]/70 to-transparent flex items-end p-5">
+                <div className="absolute inset-0 bg-gradient-to-t from-store-primary/70 to-transparent flex items-end p-5">
                   <div>
-                    <p className="text-[9px] text-[#D4AF37] font-black uppercase tracking-widest">Sri Thirumala General Store</p>
+                    <p className="text-[9px] text-store-primary font-black uppercase tracking-widest">Sri Thirumala General Store</p>
                     <h3 className="text-white font-bold text-base leading-tight mt-1">Station Road, Kamareddy</h3>
                   </div>
                 </div>
@@ -234,7 +232,7 @@ const HomePage: React.FC = () => {
               <div className="flex items-center gap-3">
                 <div className="bg-white/85 backdrop-blur-sm rounded-xl px-4 py-3 border border-white/50 flex items-center gap-2.5 flex-1">
                   <div className="bg-[#D4AF37]/20 p-1.5 rounded-lg">
-                    <Star className="w-4 h-4 text-[#D4AF37] fill-[#D4AF37]" />
+                    <Star className="w-4 h-4 text-store-primary fill-store-primary" />
                   </div>
                   <div>
                     <p className="text-[9px] text-slate-500 font-bold">Rating</p>
@@ -261,16 +259,16 @@ const HomePage: React.FC = () => {
       {/* ═══════════════════════════════════════════════════
           SECTION 2 — CATEGORIES (EDITORIAL GRID)
       ═══════════════════════════════════════════════════ */}
-      <section className="py-16 px-5 sm:px-8 bg-[#F6F5F1] border-b border-slate-200/60">
+      <section className="py-16 px-5 sm:px-8 bg-store-accent border-b border-slate-200/60">
         <div className="max-w-screen-xl mx-auto">
           
           {/* Section Header — Left-aligned, editorial */}
           <div className="flex flex-col sm:flex-row sm:items-end justify-between mb-10 gap-4">
             <div>
-              <span className="text-[10px] font-black uppercase tracking-[0.2em] text-[#D4AF37] block mb-2">Shop By Category</span>
-              <h2 className="text-2xl sm:text-3xl font-black text-[#0A3D91] leading-tight">Academic & Student Essentials</h2>
+              <span className="text-[10px] font-black uppercase tracking-[0.2em] text-store-primary block mb-2">Shop By Category</span>
+              <h2 className="text-2xl sm:text-3xl font-black text-store-primary leading-tight">Academic & Student Essentials</h2>
             </div>
-            <Link to="/books" className="shrink-0 text-xs font-bold text-slate-600 hover:text-[#0A3D91] transition flex items-center gap-1.5 border-b border-slate-300 pb-0.5 hover:border-[#0A3D91]">
+            <Link to="/books" className="shrink-0 text-xs font-bold text-slate-600 hover:text-store-primary transition flex items-center gap-1.5 border-b border-slate-300 pb-0.5 hover:border-store-primary">
               All products <ArrowUpRight className="w-3.5 h-3.5" />
             </Link>
           </div>
@@ -296,9 +294,9 @@ const HomePage: React.FC = () => {
                 >
                   <cat.icon className="w-4.5 h-4.5" style={{ color: cat.color }} />
                 </div>
-                <h3 className="font-bold text-slate-800 group-hover:text-[#0A3D91] text-sm leading-snug transition-colors">{cat.name}</h3>
+                <h3 className="font-bold text-slate-800 group-hover:text-store-primary text-sm leading-snug transition-colors">{cat.name}</h3>
                 <p className="text-[10px] text-slate-400 font-bold mt-1">{cat.count}</p>
-                <div className="flex items-center gap-1 mt-auto pt-3 text-[10px] font-black text-slate-400 group-hover:text-[#0A3D91] transition-colors">
+                <div className="flex items-center gap-1 mt-auto pt-3 text-[10px] font-black text-slate-400 group-hover:text-store-primary transition-colors">
                   Explore <ArrowRight className="w-3 h-3" />
                 </div>
               </Link>
@@ -314,10 +312,10 @@ const HomePage: React.FC = () => {
         <div className="max-w-screen-xl mx-auto px-5 sm:px-8">
           <div className="flex items-end justify-between mb-10">
             <div>
-              <span className="text-[10px] font-black uppercase tracking-[0.2em] text-[#D4AF37] block mb-2">Most Popular</span>
+              <span className="text-[10px] font-black uppercase tracking-[0.2em] text-store-primary block mb-2">Most Popular</span>
               <h2 className="text-2xl sm:text-3xl font-black text-[#1A1A2E] leading-tight">Bestselling Titles</h2>
             </div>
-            <Link to="/books" className="shrink-0 text-xs font-bold text-slate-500 hover:text-[#0A3D91] transition flex items-center gap-1 border-b border-slate-300 pb-0.5 hover:border-[#0A3D91]">
+            <Link to="/books" className="shrink-0 text-xs font-bold text-slate-500 hover:text-store-primary transition flex items-center gap-1 border-b border-slate-300 pb-0.5 hover:border-store-primary">
               View All <ArrowUpRight className="w-3.5 h-3.5" />
             </Link>
           </div>
@@ -362,13 +360,13 @@ const HomePage: React.FC = () => {
       {/* ═══════════════════════════════════════════════════
           SECTION 4 — WHY SRI THIRUMALA (EDITORIAL 2-COL)
       ═══════════════════════════════════════════════════ */}
-      <section className="py-16 px-5 sm:px-8 bg-[#0A3D91]">
+      <section className="py-16 px-5 sm:px-8 bg-store-charcoal">
         <div className="max-w-screen-xl mx-auto">
           <div className="grid grid-cols-1 lg:grid-cols-[400px_1fr] gap-12 items-start">
 
             {/* Left sticky editorial text block */}
             <div className="space-y-5">
-              <span className="text-[10px] font-black uppercase tracking-[0.2em] text-[#D4AF37] block">Why Sri Thirumala?</span>
+              <span className="text-[10px] font-black uppercase tracking-[0.2em] text-store-primary block">Why Sri Thirumala?</span>
               <h2 className="text-2xl sm:text-3xl font-black text-white leading-tight">
                 Why students across Kamareddy choose us
               </h2>
@@ -380,21 +378,21 @@ const HomePage: React.FC = () => {
               {/* Store info card */}
               <div className="bg-white/10 border border-white/20 rounded-xl p-5 space-y-4 mt-2">
                 <div className="flex items-start gap-3">
-                  <MapPin className="w-4 h-4 text-[#D4AF37] shrink-0 mt-0.5" />
+                  <MapPin className="w-4 h-4 text-store-primary shrink-0 mt-0.5" />
                   <div>
                     <p className="text-white text-xs font-bold">Station Road, Kamareddy</p>
                     <p className="text-blue-300 text-[10px]">Telangana — 503111</p>
                   </div>
                 </div>
                 <div className="flex items-start gap-3">
-                  <Phone className="w-4 h-4 text-[#D4AF37] shrink-0 mt-0.5" />
+                  <Phone className="w-4 h-4 text-store-primary shrink-0 mt-0.5" />
                   <div>
                     <p className="text-white text-xs font-bold">+91 99498 86640</p>
                     <p className="text-blue-300 text-[10px]">WhatsApp orders accepted</p>
                   </div>
                 </div>
                 <div className="flex items-start gap-3">
-                  <Clock className="w-4 h-4 text-[#D4AF37] shrink-0 mt-0.5" />
+                  <Clock className="w-4 h-4 text-store-primary shrink-0 mt-0.5" />
                   <div>
                     <p className="text-white text-xs font-bold">9:00 AM — 9:00 PM</p>
                     <p className="text-blue-300 text-[10px]">Open all days including weekends</p>
@@ -405,7 +403,7 @@ const HomePage: React.FC = () => {
               <div className="flex gap-3 pt-1">
                 <Link
                   to="/contact"
-                  className="inline-flex items-center gap-1.5 bg-[#D4AF37] hover:bg-[#C09A25] text-[#0A3D91] font-black text-xs px-5 py-2.5 rounded-lg transition"
+                  className="inline-flex items-center gap-1.5 bg-[#D4AF37] hover:bg-[#C09A25] text-store-primary font-black text-xs px-5 py-2.5 rounded-lg transition"
                 >
                   Get Directions
                 </Link>
@@ -428,7 +426,7 @@ const HomePage: React.FC = () => {
                   className="bg-white/8 hover:bg-white/12 border border-white/15 rounded-xl p-5 transition-all duration-200 group"
                 >
                   <div className="flex items-center gap-2 mb-2">
-                    <CheckCircle className="w-4 h-4 text-[#D4AF37] shrink-0" />
+                    <CheckCircle className="w-4 h-4 text-store-primary shrink-0" />
                     <h4 className="text-white font-bold text-sm">{item.title}</h4>
                   </div>
                   <p className="text-blue-200 text-[11px] leading-relaxed pl-6">{item.desc}</p>
@@ -443,13 +441,13 @@ const HomePage: React.FC = () => {
       {/* ═══════════════════════════════════════════════════
           SECTION 5 — STORE GALLERY (UNEVEN MASONRY-LIKE)
       ═══════════════════════════════════════════════════ */}
-      <section className="py-16 px-5 sm:px-8 bg-[#F6F5F1] border-b border-slate-200/60">
+      <section className="py-16 px-5 sm:px-8 bg-store-accent border-b border-slate-200/60">
         <div className="max-w-screen-xl mx-auto">
 
           <div className="flex flex-col sm:flex-row sm:items-end justify-between mb-10 gap-4">
             <div>
-              <span className="text-[10px] font-black uppercase tracking-[0.2em] text-[#D4AF37] block mb-2">Store Gallery</span>
-              <h2 className="text-2xl sm:text-3xl font-black text-[#0A3D91]">Inside Sri Thirumala Store</h2>
+              <span className="text-[10px] font-black uppercase tracking-[0.2em] text-store-primary block mb-2">Store Gallery</span>
+              <h2 className="text-2xl sm:text-3xl font-black text-store-primary">Inside Sri Thirumala Store</h2>
             </div>
             <p className="text-xs text-slate-500 max-w-xs">
               Walk our shelves stocked with the widest selection of academic and stationery materials in Kamareddy.
@@ -468,7 +466,7 @@ const HomePage: React.FC = () => {
               />
               <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent flex items-end p-6">
                 <div>
-                  <span className="text-[9px] font-black text-[#D4AF37] uppercase tracking-widest">Textbook Section</span>
+                  <span className="text-[9px] font-black text-store-primary uppercase tracking-widest">Textbook Section</span>
                   <p className="text-white text-sm font-bold mt-0.5">1,200+ titles available</p>
                 </div>
               </div>
@@ -508,15 +506,15 @@ const HomePage: React.FC = () => {
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent flex items-end p-5">
                   <div>
-                    <span className="text-[9px] font-black text-[#D4AF37] uppercase tracking-widest">Bags Collection</span>
+                    <span className="text-[9px] font-black text-store-primary uppercase tracking-widest">Bags Collection</span>
                     <p className="text-white text-sm font-bold mt-0.5">250+ bags in stock</p>
                   </div>
                 </div>
               </div>
               {/* Info card */}
-              <div className="bg-[#0A3D91] rounded-2xl p-5 flex flex-col justify-between flex-1">
+              <div className="bg-store-charcoal rounded-2xl p-5 flex flex-col justify-between flex-1">
                 <div>
-                  <span className="text-[9px] font-black text-[#D4AF37] uppercase tracking-widest">Daily Hours</span>
+                  <span className="text-[9px] font-black text-store-primary uppercase tracking-widest">Daily Hours</span>
                   <p className="text-white font-bold text-base mt-1.5">9:00 AM — 9:00 PM</p>
                   <p className="text-blue-300 text-[10px] mt-0.5">Open all days, year-round</p>
                 </div>
@@ -539,44 +537,44 @@ const HomePage: React.FC = () => {
       <section className="py-14 px-5 sm:px-8 bg-white border-b border-slate-200/60">
         <div className="max-w-screen-xl mx-auto">
           <div className="mb-8">
-            <span className="text-[10px] font-black uppercase tracking-[0.2em] text-[#D4AF37] block mb-2">Academic Catalog</span>
+            <span className="text-[10px] font-black uppercase tracking-[0.2em] text-store-primary block mb-2">Academic Catalog</span>
             <h2 className="text-xl sm:text-2xl font-black text-[#1A1A2E]">Popular Sections Right Now</h2>
           </div>
 
           {/* 4-col editorial cards — unequal visual weight */}
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-            <div className="border border-slate-200 rounded-xl p-5 hover:border-[#0A3D91]/30 hover:bg-[#F8FAFF] transition-all group">
+            <div className="border border-slate-200 rounded-xl p-5 hover:border-store-primary/30 hover:bg-store-peach-light transition-all group">
               <span className="inline-block text-[9px] font-black bg-emerald-50 text-emerald-700 px-2 py-0.5 rounded uppercase tracking-wider mb-3">🟢 Catalog Update</span>
-              <h3 className="font-bold text-slate-800 text-sm leading-snug group-hover:text-[#0A3D91] transition">Latest Arrivals</h3>
+              <h3 className="font-bold text-slate-800 text-sm leading-snug group-hover:text-store-primary transition">Latest Arrivals</h3>
               <p className="text-[10px] text-slate-500 mt-1.5 leading-relaxed">New registers, CBSE textbooks, and competitive workbooks cataloged weekly.</p>
-              <Link to="/books?sort=newest" className="mt-4 flex items-center gap-1 text-[10px] font-bold text-[#0A3D91] hover:gap-2 transition-all">
+              <Link to="/books?sort=newest" className="mt-4 flex items-center gap-1 text-[10px] font-bold text-store-primary hover:gap-2 transition-all">
                 Explore <ArrowRight className="w-3 h-3" />
               </Link>
             </div>
 
-            <div className="border border-slate-200 rounded-xl p-5 hover:border-[#0A3D91]/30 hover:bg-[#F8FAFF] transition-all group">
+            <div className="border border-slate-200 rounded-xl p-5 hover:border-store-primary/30 hover:bg-store-peach-light transition-all group">
               <span className="inline-block text-[9px] font-black bg-rose-50 text-rose-700 px-2 py-0.5 rounded uppercase tracking-wider mb-3">🔴 Exam Season</span>
-              <h3 className="font-bold text-slate-800 text-sm leading-snug group-hover:text-[#0A3D91] transition">Exam Prep Picks</h3>
+              <h3 className="font-bold text-slate-800 text-sm leading-snug group-hover:text-store-primary transition">Exam Prep Picks</h3>
               <p className="text-[10px] text-slate-500 mt-1.5 leading-relaxed">TSPSC, board guides, and model question banks to secure high marks.</p>
-              <Link to="/books?category=Question Banks" className="mt-4 flex items-center gap-1 text-[10px] font-bold text-[#0A3D91] hover:gap-2 transition-all">
+              <Link to="/books?category=Question Banks" className="mt-4 flex items-center gap-1 text-[10px] font-bold text-store-primary hover:gap-2 transition-all">
                 View Exam Prep <ArrowRight className="w-3 h-3" />
               </Link>
             </div>
 
-            <div className="border border-slate-200 rounded-xl p-5 hover:border-[#0A3D91]/30 hover:bg-[#F8FAFF] transition-all group">
+            <div className="border border-slate-200 rounded-xl p-5 hover:border-store-primary/30 hover:bg-store-peach-light transition-all group">
               <span className="inline-block text-[9px] font-black bg-blue-50 text-blue-700 px-2 py-0.5 rounded uppercase tracking-wider mb-3">🔵 Engineering & Degree</span>
-              <h3 className="font-bold text-slate-800 text-sm leading-snug group-hover:text-[#0A3D91] transition">Semester Guides</h3>
+              <h3 className="font-bold text-slate-800 text-sm leading-snug group-hover:text-store-primary transition">Semester Guides</h3>
               <p className="text-[10px] text-slate-500 mt-1.5 leading-relaxed">B.Tech university math guides, chemistry tables, and degree standard references.</p>
-              <Link to="/books?category=Engineering Materials" className="mt-4 flex items-center gap-1 text-[10px] font-bold text-[#0A3D91] hover:gap-2 transition-all">
+              <Link to="/books?category=Engineering Materials" className="mt-4 flex items-center gap-1 text-[10px] font-bold text-store-primary hover:gap-2 transition-all">
                 Browse Semesters <ArrowRight className="w-3 h-3" />
               </Link>
             </div>
 
-            <div className="border border-slate-200 rounded-xl p-5 hover:border-[#0A3D91]/30 hover:bg-[#F8FAFF] transition-all group">
+            <div className="border border-slate-200 rounded-xl p-5 hover:border-store-primary/30 hover:bg-store-peach-light transition-all group">
               <span className="inline-block text-[9px] font-black bg-amber-50 text-amber-700 px-2 py-0.5 rounded uppercase tracking-wider mb-3">⭐ Trending</span>
-              <h3 className="font-bold text-slate-800 text-sm leading-snug group-hover:text-[#0A3D91] transition">Trending Materials</h3>
+              <h3 className="font-bold text-slate-800 text-sm leading-snug group-hover:text-store-primary transition">Trending Materials</h3>
               <p className="text-[10px] text-slate-500 mt-1.5 leading-relaxed">RS Aggarwal quant books, Classmate drawing journals, premium double-strap backpacks.</p>
-              <Link to="/books" className="mt-4 flex items-center gap-1 text-[10px] font-bold text-[#0A3D91] hover:gap-2 transition-all">
+              <Link to="/books" className="mt-4 flex items-center gap-1 text-[10px] font-bold text-store-primary hover:gap-2 transition-all">
                 Shop Now <ArrowRight className="w-3 h-3" />
               </Link>
             </div>
@@ -587,18 +585,18 @@ const HomePage: React.FC = () => {
       {/* ═══════════════════════════════════════════════════
           SECTION 7 — CUSTOMER TESTIMONIALS
       ═══════════════════════════════════════════════════ */}
-      <section className="py-16 px-5 sm:px-8 bg-[#F6F5F1] border-b border-slate-200/60">
+      <section className="py-16 px-5 sm:px-8 bg-store-accent border-b border-slate-200/60">
         <div className="max-w-screen-xl mx-auto">
 
           <div className="flex flex-col sm:flex-row sm:items-end justify-between mb-10 gap-4">
             <div>
-              <span className="text-[10px] font-black uppercase tracking-[0.2em] text-[#D4AF37] block mb-2">Customer Reviews</span>
-              <h2 className="text-2xl sm:text-3xl font-black text-[#0A3D91]">Trusted by Parents & Students</h2>
+              <span className="text-[10px] font-black uppercase tracking-[0.2em] text-store-primary block mb-2">Customer Reviews</span>
+              <h2 className="text-2xl sm:text-3xl font-black text-store-primary">Trusted by Parents & Students</h2>
             </div>
             <div className="flex items-center gap-2 shrink-0">
               <div className="flex">
                 {[...Array(5)].map((_, i) => (
-                  <Star key={i} className="w-4 h-4 text-[#D4AF37] fill-[#D4AF37]" />
+                  <Star key={i} className="w-4 h-4 text-store-primary fill-store-primary" />
                 ))}
               </div>
               <span className="text-sm font-black text-slate-700">4.9 avg rating</span>
@@ -624,7 +622,7 @@ const HomePage: React.FC = () => {
                   <div>
                     <div className="flex mb-4">
                       {[...Array(5)].map((_, i) => (
-                        <Star key={i} className="w-3.5 h-3.5 text-[#D4AF37] fill-[#D4AF37]" />
+                        <Star key={i} className="w-3.5 h-3.5 text-store-primary fill-store-primary" />
                       ))}
                     </div>
                     <p className="text-slate-700 text-sm leading-relaxed italic">"{review.text}"</p>
@@ -648,8 +646,8 @@ const HomePage: React.FC = () => {
         <div className="max-w-screen-xl mx-auto">
           <div className="border border-slate-200 rounded-2xl bg-[#F8FAFF] px-8 sm:px-12 py-10 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6">
             <div>
-              <span className="text-[10px] font-black text-[#D4AF37] uppercase tracking-widest block mb-2">Need help?</span>
-              <h3 className="text-xl sm:text-2xl font-black text-[#0A3D91]">Don't know which book to pick?</h3>
+              <span className="text-[10px] font-black text-store-primary uppercase tracking-widest block mb-2">Need help?</span>
+              <h3 className="text-xl sm:text-2xl font-black text-store-primary">Don't know which book to pick?</h3>
               <p className="text-slate-500 text-sm mt-1.5 max-w-md">
                 WhatsApp or call us with your class, board, and subject — and we'll confirm availability instantly.
               </p>
@@ -665,7 +663,7 @@ const HomePage: React.FC = () => {
               </a>
               <a
                 href="tel:8897766640"
-                className="inline-flex items-center gap-2 bg-[#0A3D91] hover:bg-[#082C6C] text-white font-bold text-sm px-6 py-3 rounded-lg transition shadow-sm"
+                className="inline-flex items-center gap-2 bg-store-primary hover:bg-store-primary-dark text-white font-bold text-sm px-6 py-3.5 rounded-xl transition shadow-sm min-h-[48px]"
               >
                 <Phone className="w-4 h-4" />
                 Call Now

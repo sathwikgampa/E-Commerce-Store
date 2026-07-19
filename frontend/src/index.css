@@ -2,19 +2,28 @@
 @import "tailwindcss";
 
 @theme {
-  /* Brand Colors */
+  /* Storefront Brand Colors (Warm Orange & Soft Peach) */
+  --color-store-primary: #FF7A50;
+  --color-store-primary-dark: #E05E34;
+  --color-store-accent: #FFF7F5;
+  --color-store-accent-dark: #FFEFEA;
+  --color-store-charcoal: #1A1A2E;
+  --color-store-charcoal-light: #2D3748;
+
+  /* Admin/Default Brand Colors (Dark Navy Blue) */
   --color-primary: #0A3D91;
   --color-primary-dark: #082C6C;
   --color-accent: #D4AF37;
   --color-accent-dark: #B8961F;
 
   /* Backgrounds */
-  --color-background-light: #F6F5F1;
-  --color-background-off: #F8FAFC;
-  --color-background-dark: #040D21;
-  --color-charcoal: #0F172A;
+  --color-background-light: #FFF7F5; /* Matches soft peach default storefront background */
+  --color-background-off: #FFEFEA;
+  --color-background-dark: #1A1A2E;
+  --color-charcoal: #2D3748;
 
   /* Fonts */
+  --font-serif: 'Lora', Georgia, Cambria, "Times New Roman", Times, serif;
   --font-display: 'Outfit', 'Inter', ui-sans-serif, system-ui, sans-serif;
   --font-sans: 'Inter', ui-sans-serif, system-ui, sans-serif;
 
@@ -59,6 +68,14 @@
   h1, h2, h3, h4, h5, h6 {
     @apply font-display;
     letter-spacing: -0.02em;
+  }
+
+  .storefront h1,
+  .storefront h2,
+  .storefront h3,
+  .storefront h4,
+  .storefront .font-serif-heading {
+    font-family: var(--font-serif);
   }
 
   p {

@@ -5,6 +5,7 @@ import { Toaster } from 'sonner';
 // Layout & Components
 import Navbar from './components/Navbar';
 import Footer from './components/Footer';
+import BottomNavigation from './components/BottomNavigation';
 
 // Landing Page (eagerly loaded for fast first impression)
 import LandingPage from './pages/LandingPage';
@@ -40,7 +41,7 @@ const LoadingFallback: React.FC = () => (
 
 // Shell wraps all non-landing pages with Navbar + Footer
 const AppShell: React.FC<{ children: React.ReactNode }> = ({ children }) => (
-  <div className="flex flex-col min-h-screen bg-[#F8FAFC]">
+  <div className="flex flex-col min-h-screen bg-store-accent text-slate-800 font-sans storefront pb-16 md:pb-0">
     <Navbar />
     <main className="flex-grow">
       <Suspense fallback={<LoadingFallback />}>
@@ -48,6 +49,7 @@ const AppShell: React.FC<{ children: React.ReactNode }> = ({ children }) => (
       </Suspense>
     </main>
     <Footer />
+    <BottomNavigation />
   </div>
 );
 

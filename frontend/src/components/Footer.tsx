@@ -10,7 +10,7 @@ const Footer: React.FC = () => {
   };
 
   return (
-    <footer className="bg-[#040D21] text-slate-400 pt-16 pb-10 border-t border-slate-900 text-left">
+    <footer className="bg-store-charcoal text-slate-400 pt-16 pb-10 border-t border-store-charcoal-light text-left">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         
         {/* Main Grid */}
@@ -19,12 +19,12 @@ const Footer: React.FC = () => {
           {/* Column 1: Store Intro (4 cols) */}
           <div className="lg:col-span-4 space-y-6">
             <div className="flex items-center gap-2.5 text-white">
-              <div className="bg-[#0A3D91] p-2.5 rounded-xl border border-slate-800 shadow-md">
-                <span className="material-symbols-outlined text-2xl font-black text-accent text-[#D4AF37]">menu_book</span>
+              <div className="bg-store-primary p-2.5 rounded-xl border border-store-charcoal-light shadow-md">
+                <span className="material-symbols-outlined text-2xl font-black text-white">menu_book</span>
               </div>
               <div className="flex flex-col">
                 <span className="text-xl font-black tracking-tight text-white leading-none">Sri Thirumala</span>
-                <span className="text-[9px] font-bold text-accent uppercase tracking-widest leading-none mt-1 text-[#D4AF37]">Book Seller & Stationery</span>
+                <span className="text-[9px] font-bold text-store-primary uppercase tracking-widest leading-none mt-1">Book Seller & Stationery</span>
               </div>
             </div>
             <p className="text-xs text-slate-400 leading-relaxed max-w-sm font-semibold">
@@ -37,14 +37,14 @@ const Footer: React.FC = () => {
                 href="https://wa.me/918897766640" 
                 target="_blank" 
                 rel="noreferrer" 
-                className="p-2.5 bg-slate-900 hover:bg-[#075E54] text-slate-350 hover:text-white rounded-xl transition-all duration-300 border border-slate-800"
+                className="p-3 bg-store-charcoal-light hover:bg-[#075E54] text-slate-300 hover:text-white rounded-xl transition-all duration-300 border border-slate-800 flex items-center justify-center min-w-[48px] min-h-[48px]"
                 title="Chat on WhatsApp"
               >
                 <MessageSquare className="w-4.5 h-4.5" />
               </a>
               <a 
                 href="tel:8897766640" 
-                className="p-2.5 bg-slate-900 hover:bg-primary hover:text-white rounded-xl text-slate-350 transition-all duration-300 border border-slate-800"
+                className="p-3 bg-store-charcoal-light hover:bg-store-primary hover:text-white rounded-xl text-slate-300 transition-all duration-300 border border-slate-800 flex items-center justify-center min-w-[48px] min-h-[48px]"
                 title="Call Support"
               >
                 <Phone className="w-4.5 h-4.5" />
@@ -53,7 +53,7 @@ const Footer: React.FC = () => {
                 href="https://maps.google.com/maps?q=Station%20Road,%20Kamareddy%20-%20503111" 
                 target="_blank" 
                 rel="noreferrer" 
-                className="p-2.5 bg-slate-900 hover:bg-primary hover:text-white rounded-xl text-slate-350 transition-all duration-300 border border-slate-800"
+                className="p-3 bg-store-charcoal-light hover:bg-store-primary hover:text-white rounded-xl text-slate-300 transition-all duration-300 border border-slate-800 flex items-center justify-center min-w-[48px] min-h-[48px]"
                 title="View on Google Maps"
               >
                 <ExternalLink className="w-4.5 h-4.5" />
@@ -65,12 +65,12 @@ const Footer: React.FC = () => {
           <div className="lg:col-span-2">
             <h4 className="text-white font-bold mb-6 text-xs tracking-wider uppercase">Categories</h4>
             <ul className="space-y-3.5 text-xs font-semibold">
-              <li><Link className="hover:text-accent transition-colors" to="/books?category=Textbooks">Textbooks</Link></li>
-              <li><Link className="hover:text-accent transition-colors" to="/books?category=Notebooks">Notebooks</Link></li>
-              <li><Link className="hover:text-accent transition-colors" to="/books?category=Stationery">Stationery</Link></li>
-              <li><Link className="hover:text-accent transition-colors" to="/books?category=School Bags">School Bags</Link></li>
-              <li><Link className="hover:text-accent transition-colors" to="/books?category=College Bags">College Bags</Link></li>
-              <li><Link className="hover:text-accent transition-colors" to="/books?category=Question Banks">Question Banks</Link></li>
+              <li><Link className="hover:text-store-primary transition-colors" to="/books?category=Textbooks">Textbooks</Link></li>
+              <li><Link className="hover:text-store-primary transition-colors" to="/books?category=Notebooks">Notebooks</Link></li>
+              <li><Link className="hover:text-store-primary transition-colors" to="/books?category=Stationery">Stationery</Link></li>
+              <li><Link className="hover:text-store-primary transition-colors" to="/books?category=School Bags">School Bags</Link></li>
+              <li><Link className="hover:text-store-primary transition-colors" to="/books?category=College Bags">College Bags</Link></li>
+              <li><Link className="hover:text-store-primary transition-colors" to="/books?category=Question Banks">Question Banks</Link></li>
             </ul>
           </div>
           
@@ -79,7 +79,7 @@ const Footer: React.FC = () => {
             <h4 className="text-white font-bold mb-6 text-xs tracking-wider uppercase">Contact Details</h4>
             
             <div className="flex items-start gap-3 text-xs">
-              <MapPin className="w-4.5 h-4.5 text-accent shrink-0 text-[#D4AF37]" />
+              <MapPin className="w-4.5 h-4.5 text-store-primary shrink-0" />
               <div>
                 <p className="text-white font-bold">Sri Thirumala General Store</p>
                 <p className="text-slate-400 mt-1.5 leading-relaxed font-semibold">
@@ -90,7 +90,7 @@ const Footer: React.FC = () => {
             </div>
             
             <div className="flex items-center gap-3 text-xs pt-2">
-              <Phone className="w-4.5 h-4.5 text-accent shrink-0 text-[#D4AF37]" />
+              <Phone className="w-4.5 h-4.5 text-store-primary shrink-0" />
               <div>
                 <p className="text-slate-450 font-semibold">Store Support</p>
                 <p className="text-white font-black mt-1 text-sm">+91 99498 86640</p>
@@ -119,11 +119,11 @@ const Footer: React.FC = () => {
               <div className="flex gap-2">
                 <input 
                   required
-                  className="bg-slate-900 border border-slate-850 rounded-lg px-3 py-2 text-xs focus:ring-1 focus:ring-accent focus:outline-none text-white placeholder:text-slate-600 flex-grow font-semibold" 
+                  className="bg-slate-900 border border-slate-800 rounded-lg px-3 py-2.5 text-xs focus:ring-1 focus:ring-store-primary focus:outline-none text-white placeholder:text-slate-655 flex-grow font-semibold" 
                   placeholder="Your Email" 
                   type="email" 
                 />
-                <button type="submit" className="bg-[#0A3D91] hover:bg-[#082C6C] text-white font-bold px-3 py-2 text-xs rounded-lg border border-primary hover:border-accent transition-all shrink-0">
+                <button type="submit" className="bg-store-primary hover:bg-store-primary-dark text-white font-bold px-4 py-2.5 text-xs rounded-lg border border-store-primary hover:border-store-primary-dark transition-all shrink-0">
                   Join
                 </button>
               </div>
@@ -136,9 +136,9 @@ const Footer: React.FC = () => {
         <div className="mt-10 flex flex-col md:flex-row justify-between items-center text-[11px] text-slate-500 font-bold gap-4">
           <p>&copy; {new Date().getFullYear()} Sri Thirumala General Store. All rights reserved.</p>
           <div className="flex gap-6">
-            <Link to="/contact" className="hover:text-accent transition-colors">Store Directions</Link>
-            <a href="tel:8897766640" className="hover:text-accent transition-colors">Call Owner</a>
-            <Link to="/books" className="hover:text-accent transition-colors">Browse Stock</Link>
+            <Link to="/contact" className="hover:text-store-primary transition-colors">Store Directions</Link>
+            <a href="tel:8897766640" className="hover:text-store-primary transition-colors">Call Owner</a>
+            <Link to="/books" className="hover:text-store-primary transition-colors">Browse Stock</Link>
           </div>
         </div>
         

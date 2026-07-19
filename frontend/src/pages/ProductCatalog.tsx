@@ -27,6 +27,7 @@ const ProductCatalog: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('All');
   const [showOnlyWishlist, setShowOnlyWishlist] = useState(false);
+  const [mobileFiltersOpen, setMobileFiltersOpen] = useState(false);
   
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const [isQuickViewOpen, setIsQuickViewOpen] = useState(false);
@@ -107,9 +108,9 @@ const ProductCatalog: React.FC = () => {
   });
 
   return (
-    <div className="w-full mx-auto px-4 sm:px-6 lg:px-8 py-10 text-left bg-[#F8FAFC]">
+    <div className="w-full mx-auto px-4 sm:px-6 lg:px-8 py-10 text-left bg-store-accent">
       <div className="mb-8">
-        <h1 className="text-3xl font-black text-primary text-[#0A3D91]">
+        <h1 className="text-3xl font-black text-store-primary">
           {showOnlyWishlist ? 'My Book Wishlist' : 'Store Catalog'}
         </h1>
         <p className="text-xs text-slate-500 font-semibold mt-1">
@@ -121,14 +122,25 @@ const ProductCatalog: React.FC = () => {
 
       <div className="flex flex-col lg:flex-row gap-8">
         
+        {/* Mobile Filters Toggle Button */}
+        <div className="lg:hidden w-full">
+          <button 
+            onClick={() => setMobileFiltersOpen(!mobileFiltersOpen)}
+            className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-white border border-slate-200 rounded-xl font-bold text-xs uppercase tracking-wider text-slate-700 min-h-[48px]"
+          >
+            <Filter className="w-4 h-4 text-store-primary" />
+            {mobileFiltersOpen ? 'Hide Filters & Categories' : 'Show Filters & Categories'}
+          </button>
+        </div>
+
         {/* Sidebar / Filters */}
-        <div className="w-full lg:w-64 shrink-0">
+        <div className={`w-full lg:w-64 shrink-0 ${mobileFiltersOpen ? 'block' : 'hidden lg:block'}`}>
           <div className="sticky top-24 bg-white p-5 rounded-2xl shadow-xs border border-slate-200/80 space-y-6">
             
             {/* Filter title */}
             <div>
               <h2 className="text-base font-black text-slate-900 flex items-center gap-2 pb-3.5 border-b border-slate-100">
-                <Filter className="w-4.5 h-4.5 text-primary text-[#0A3D91]" /> Filters
+                <Filter className="w-4.5 h-4.5 text-store-primary" /> Filters
               </h2>
             </div>
 
@@ -151,7 +163,7 @@ const ProductCatalog: React.FC = () => {
 
             {/* Categories list selection */}
             <div className="space-y-2.5">
-              <h3 className="font-bold text-xs text-slate-805 uppercase tracking-wider">Categories</h3>
+              <h3 className="font-bold text-xs text-slate-800 uppercase tracking-wider">Categories</h3>
               <ul className="space-y-1">
                 {categories.map((cat) => (
                   <li key={cat}>
@@ -159,7 +171,7 @@ const ProductCatalog: React.FC = () => {
                       onClick={() => handleCategoryClick(cat)}
                       className={`w-full text-left px-3 py-2 rounded-lg text-xs font-bold transition-colors ${
                         selectedCategory === cat && !showOnlyWishlist
-                          ? 'bg-[#EAF3FF] text-[#0A3D91] font-extrabold border-l-3 border-[#0A3D91]' 
+                          ? 'bg-store-accent-dark text-store-primary font-extrabold border-l-3 border-store-primary' 
                           : 'text-slate-600 hover:bg-slate-50 hover:text-slate-950'
                       }`}
                     >

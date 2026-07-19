@@ -77,9 +77,9 @@ const CheckoutPage: React.FC = () => {
   };
 
   return (
-    <div className="w-full mx-auto px-4 sm:px-6 lg:px-8 py-10 bg-[#F8FAFC] text-left">
+    <div className="w-full mx-auto px-4 sm:px-6 lg:px-8 py-10 bg-store-accent text-left">
       <div className="mb-8">
-        <h1 className="text-3xl font-black text-primary text-[#0A3D91]">Checkout Details</h1>
+        <h1 className="text-3xl font-black text-store-primary">Checkout Details</h1>
         <p className="text-xs text-slate-500 font-semibold mt-1">Specify your contact credentials to arrange local store pickup or regional delivery in Kamareddy.</p>
       </div>
 
@@ -160,7 +160,7 @@ const CheckoutPage: React.FC = () => {
               
               <div className="space-y-3">
                 <label className={`flex items-center p-4 border rounded-xl cursor-pointer transition ${
-                  paymentMethod === 'COD' ? 'border-[#0A3D91] bg-blue-50/30' : 'border-slate-200 hover:bg-slate-50'
+                  paymentMethod === 'COD' ? 'border-store-primary bg-store-peach-light' : 'border-slate-200 hover:bg-slate-50'
                 }`}>
                   <input 
                     type="radio" 
@@ -168,7 +168,7 @@ const CheckoutPage: React.FC = () => {
                     value="COD" 
                     checked={paymentMethod === 'COD'} 
                     onChange={() => setPaymentMethod('COD')}
-                    className="w-4 h-4 text-primary focus:ring-primary" 
+                    className="w-4 h-4 text-store-primary focus:ring-store-primary" 
                   />
                   <div className="ml-3 text-left">
                     <span className="block text-xs font-bold text-slate-900">Cash on Delivery (COD)</span>
@@ -177,7 +177,7 @@ const CheckoutPage: React.FC = () => {
                 </label>
                 
                 <label className={`flex items-center p-4 border rounded-xl cursor-pointer transition ${
-                  paymentMethod === 'UPI' ? 'border-[#0A3D91] bg-blue-50/30' : 'border-slate-200 hover:bg-slate-50'
+                  paymentMethod === 'UPI' ? 'border-store-primary bg-store-peach-light' : 'border-slate-200 hover:bg-slate-50'
                 }`}>
                   <input 
                     type="radio" 
@@ -185,7 +185,7 @@ const CheckoutPage: React.FC = () => {
                     value="UPI" 
                     checked={paymentMethod === 'UPI'} 
                     onChange={() => setPaymentMethod('UPI')}
-                    className="w-4 h-4 text-primary focus:ring-primary" 
+                    className="w-4 h-4 text-store-primary focus:ring-store-primary" 
                   />
                   <div className="ml-3 text-left">
                     <span className="block text-xs font-bold text-slate-900">UPI (GPay / PhonePe / Paytm)</span>
@@ -199,7 +199,7 @@ const CheckoutPage: React.FC = () => {
             <button 
               type="submit" 
               disabled={isSubmitting || submitOrderMutation.isPending}
-              className="w-full flex justify-center items-center px-6 py-4 bg-[#0A3D91] hover:bg-[#082C6C] text-white font-bold rounded-xl shadow-md transition-all active:scale-95 disabled:bg-slate-200 disabled:cursor-not-allowed text-xs uppercase tracking-wider"
+              className="w-full flex justify-center items-center px-6 py-4 bg-store-primary hover:bg-store-primary-dark text-white font-bold rounded-xl shadow-md transition-all active:scale-95 disabled:bg-slate-200 disabled:cursor-not-allowed text-xs uppercase tracking-wider min-h-[48px]"
             >
               {isSubmitting || submitOrderMutation.isPending ? 'Placing Order...' : `Place Local Order - ₹${total}`}
             </button>
@@ -235,12 +235,12 @@ const CheckoutPage: React.FC = () => {
               </div>
               <div className="flex justify-between items-center text-slate-900 pt-4 border-t border-slate-100">
                 <span className="text-sm font-bold">Total Bill</span>
-                <span className="text-xl font-black text-primary">₹{total}</span>
+                <span className="text-xl font-black text-store-primary">₹{total}</span>
               </div>
             </div>
 
-            <div className="bg-blue-50/50 p-4 rounded-xl flex gap-2.5 items-start">
-              <ShieldCheck className="w-5 h-5 text-emerald-600 shrink-0 mt-0.5" />
+            <div className="bg-store-peach-light p-4 rounded-xl flex gap-2.5 items-start">
+              <ShieldCheck className="w-5 h-5 text-store-primary shrink-0 mt-0.5" />
               <p className="text-[10px] text-slate-600 font-semibold leading-relaxed text-left">
                 <strong>Assured Local Care:</strong> Your books will be kept reserved at the counter. The manager will coordinate details with you.
               </p>
