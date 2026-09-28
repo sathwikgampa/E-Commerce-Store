@@ -44,18 +44,29 @@ const OrderSchema = new mongoose.Schema({
 });
 const Order = mongoose.model('Order', OrderSchema);
 
+// In-memory fallback for orders when MongoDB is not connected
+const mockOrders = [];
+
 // API Endpoints: Products
 app.get('/api/products', async (req, res) => {
   try {
+    if (mongoose.connection.readyState !== 1) {
+      return res.json(mockProducts);
+    }
     const products = await Product.find();
     res.json(products.length > 0 ? products : mockProducts);
   } catch (err) {
-    res.status(500).json({ message: err.message });
+    res.json(mockProducts);
   }
 });
 
 app.post('/api/products', async (req, res) => {
   try {
+    if (mongoose.connection.readyState !== 1) {
+      const newProduct = { ...req.body, _id: Date.now().toString() };
+      mockProducts.push(newProduct);
+      return res.status(201).json(newProduct);
+    }
     const newProduct = new Product(req.body);
     await newProduct.save();
     res.status(201).json(newProduct);
@@ -67,6 +78,11 @@ app.post('/api/products', async (req, res) => {
 // API Endpoints: Orders
 app.post('/api/orders', async (req, res) => {
   try {
+    if (mongoose.connection.readyState !== 1) {
+      const newOrder = { ...req.body, _id: Date.now().toString(), status: 'Pending', createdAt: new Date() };
+      mockOrders.unshift(newOrder);
+      return res.status(201).json(newOrder);
+    }
     const newOrder = new Order(req.body);
     await newOrder.save();
     res.status(201).json(newOrder);
@@ -77,6 +93,9 @@ app.post('/api/orders', async (req, res) => {
 
 app.get('/api/orders', async (req, res) => {
   try {
+    if (mongoose.connection.readyState !== 1) {
+      return res.json(mockOrders);
+    }
     const orders = await Order.find().sort({ createdAt: -1 });
     res.json(orders);
   } catch (err) {
@@ -96,11 +115,9 @@ app.post('/api/admin/login', (req, res) => {
 });
 
 // MongoDB Connection
-mongoose.connect(process.env.MONGO_URI || 'mongodb://localhost:27017/bookstore', {
-  useNewUrlParser: true,
-  useUnifiedTopology: true
-}).then(() => console.log('MongoDB connected'))
-  .catch(err => console.log('MongoDB connection error:', err));
+mongoose.connect(process.env.MONGO_URI || 'mongodb://localhost:27017/bookstore')
+  .then(() => console.log('MongoDB connected'))
+  .catch(err => console.log('MongoDB connection error:', err.message));
 
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
