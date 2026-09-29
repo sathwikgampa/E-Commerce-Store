@@ -16,6 +16,17 @@ export interface Product {
   stock?: number;
   reservedStock?: number;
   lowStockThreshold?: number;
+  // Accurate product specification fields
+  publisher?: string;
+  edition?: string;
+  isbn?: string;
+  language?: string;
+  pages?: string;
+  binding?: string;
+  curriculum?: string;
+  features?: string[];
+  dimensions?: string;
+  weight?: string;
 }
 
 export interface CartItem {
