@@ -73,7 +73,7 @@ const ContactPage: React.FC = () => {
                   <h3 className="font-bold text-slate-800 text-sm">Phone Call &amp; WhatsApp</h3>
                   <p className="text-xs text-slate-500 mt-1 font-semibold">+91 99498 86640</p>
                   <a 
-                    href="https://wa.me/918897766640" 
+                    href="https://wa.me/919949886640?text=Hi%20Sri%20Thirumala%20Store%2C%20I%20have%20an%20inquiry%20regarding%20books" 
                     target="_blank" 
                     rel="noreferrer" 
                     className="inline-flex items-center gap-1 mt-2 text-xs font-bold text-[#128C7E] hover:underline"

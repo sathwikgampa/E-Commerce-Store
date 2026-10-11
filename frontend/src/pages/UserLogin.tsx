@@ -15,7 +15,7 @@ const UserLogin: React.FC = () => {
     if (isLogin) {
       if (email && password) {
         toast.success(`Welcome back to Sri Thirumala Store!`);
-        navigate('/');
+        navigate('/home');
       } else {
         toast.error('Please enter valid email and password.');
       }
