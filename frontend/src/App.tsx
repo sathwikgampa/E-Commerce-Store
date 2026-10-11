@@ -18,6 +18,8 @@ const CartPage = lazy(() => import('./pages/CartPage'));
 const CheckoutPage = lazy(() => import('./pages/CheckoutPage'));
 const ContactPage = lazy(() => import('./pages/ContactPage'));
 const UserLogin = lazy(() => import('./pages/UserLogin'));
+const BlogPage = lazy(() => import('./pages/BlogPage'));
+const BlogPostPage = lazy(() => import('./pages/BlogPostPage'));
 
 // Admin Pages
 const AdminLogin = lazy(() => import('./pages/admin/AdminLogin'));
@@ -43,7 +45,7 @@ const LoadingFallback: React.FC = () => (
 const AppShell: React.FC<{ children: React.ReactNode }> = ({ children }) => (
   <div className="flex flex-col min-h-screen bg-store-accent text-slate-800 font-sans storefront pb-16 md:pb-0">
     <Navbar />
-    <main className="flex-grow">
+    <main id="main-content" className="flex-grow">
       <Suspense fallback={<LoadingFallback />}>
         {children}
       </Suspense>
@@ -98,6 +100,8 @@ const AppRoutes: React.FC = () => {
             <Route path="/checkout"   element={<CheckoutPage />} />
             <Route path="/contact"    element={<ContactPage />} />
             <Route path="/login"      element={<UserLogin />} />
+            <Route path="/blog"       element={<BlogPage />} />
+            <Route path="/blog/:id"   element={<BlogPostPage />} />
           </Routes>
         </AppShell>
       )}

@@ -23,6 +23,9 @@ import {
   Package,
   Users,
   BadgeCheck,
+  Instagram,
+  Send,
+  MessageCircle,
 } from 'lucide-react';
 import { Swiper, SwiperSlide } from 'swiper/react';
 import { Autoplay, Pagination } from 'swiper/modules';
@@ -38,6 +41,7 @@ import QuickViewModal from '../components/QuickViewModal';
 import ProductCard from '../components/ProductCard';
 import { toast } from 'sonner';
 import ShinyText from '../components/reactbits/ShinyText';
+import { BLOG_POSTS } from '../data/blogData';
 
 const fadeUp = {
   hidden: { opacity: 0, y: 28 },
@@ -56,6 +60,18 @@ const HomePage: React.FC = () => {
 
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const [isQuickViewOpen, setIsQuickViewOpen] = useState(false);
+  const [newsletterEmail, setNewsletterEmail] = useState('');
+
+  const handleNewsletterSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (newsletterEmail.trim()) {
+      toast.success('🎉 Welcome! Use code STUDENT10 for 10% OFF your order.', {
+        description: 'Coupon code STUDENT10 has been verified.',
+        duration: 6000,
+      });
+      setNewsletterEmail('');
+    }
+  };
 
   const openQuickView = (product: Product) => {
     setSelectedProduct(product);
@@ -640,33 +656,245 @@ const HomePage: React.FC = () => {
       </section>
 
       {/* ═══════════════════════════════════════════════════
-          SECTION 8 — BOTTOM CTA (EDITORIAL STRIP)
+          SECTION 8 — CONTENT MARKETING (STUDY GUIDES & BLOG)
+      ═══════════════════════════════════════════════════ */}
+      <section className="py-16 px-5 sm:px-8 bg-white border-b border-slate-200/60">
+        <div className="max-w-screen-xl mx-auto">
+          
+          <div className="flex flex-col sm:flex-row sm:items-end justify-between mb-10 gap-4">
+            <div>
+              <span className="text-[10px] font-black uppercase tracking-[0.2em] text-store-primary block mb-2">From The Study Desk</span>
+              <h2 className="text-2xl sm:text-3xl font-black text-slate-900 font-serif">Academic Guides &amp; Exam Roadmaps</h2>
+              <p className="text-slate-500 text-xs sm:text-sm mt-1 max-w-lg font-medium">
+                Expert textbook analysis, syllabus overviews, and student stationery recommendations curated by Kamareddy's veteran booksellers.
+              </p>
+            </div>
+            <Link
+              to="/blog"
+              className="inline-flex items-center gap-1.5 text-xs font-bold text-store-primary hover:text-store-primary-dark transition shrink-0"
+            >
+              Browse All Journal Articles <ArrowRight className="w-4 h-4" />
+            </Link>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            {BLOG_POSTS.slice(0, 3).map((post) => (
+              <article
+                key={post.id}
+                className="bg-slate-50 rounded-2xl border border-slate-200/80 overflow-hidden flex flex-col justify-between hover:shadow-lg transition-all duration-300 group"
+              >
+                <div>
+                  <div className="h-48 overflow-hidden relative">
+                    <img
+                      src={post.coverImage}
+                      alt={post.title}
+                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                    />
+                    <span className="absolute top-3 left-3 bg-white/95 px-3 py-1 rounded-full text-[10px] font-black text-store-primary shadow-xs">
+                      {post.category}
+                    </span>
+                  </div>
+
+                  <div className="p-6 space-y-2.5">
+                    <div className="text-[11px] text-slate-400 font-bold flex items-center gap-2">
+                      <span>{post.publishedAt}</span>
+                      <span>•</span>
+                      <span>{post.readTime}</span>
+                    </div>
+
+                    <h3 className="text-base font-bold text-slate-900 group-hover:text-store-primary transition leading-snug">
+                      <Link to={`/blog/${post.slug}`}>
+                        {post.title}
+                      </Link>
+                    </h3>
+
+                    <p className="text-xs text-slate-600 line-clamp-2 leading-relaxed">
+                      {post.excerpt}
+                    </p>
+                  </div>
+                </div>
+
+                <div className="p-6 pt-0">
+                  <Link
+                    to={`/blog/${post.slug}`}
+                    className="inline-flex items-center text-xs font-bold text-store-primary group-hover:translate-x-1 transition-transform"
+                  >
+                    Read Guide <ArrowRight className="w-3.5 h-3.5 ml-1" />
+                  </Link>
+                </div>
+              </article>
+            ))}
+          </div>
+
+        </div>
+      </section>
+
+      {/* ═══════════════════════════════════════════════════
+          SECTION 9 — SOCIAL MEDIA COMMUNITY INTEGRATION
+      ═══════════════════════════════════════════════════ */}
+      <section className="py-16 px-5 sm:px-8 bg-store-accent border-b border-slate-200/60">
+        <div className="max-w-screen-xl mx-auto">
+          
+          <div className="text-center max-w-2xl mx-auto mb-10 space-y-2">
+            <span className="text-[10px] font-black uppercase tracking-[0.2em] text-store-primary block">Social Community</span>
+            <h2 className="text-2xl sm:text-3xl font-black text-slate-900 font-serif">Tag #SriThirumalaBooks on Instagram</h2>
+            <p className="text-xs sm:text-sm text-slate-600 font-medium leading-relaxed">
+              Join thousands of students and teachers across Kamareddy sharing unboxings, study flatlays, and exam prep milestones.
+            </p>
+          </div>
+
+          {/* Social Showcase Grid */}
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-8">
+            <div className="relative rounded-2xl overflow-hidden group aspect-square bg-slate-200">
+              <img
+                src="/images/products/classmate-notebooks.jpg"
+                alt="Classmate notebook bundle study setup"
+                className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex items-end p-4 text-white text-xs">
+                <div>
+                  <span className="font-bold flex items-center gap-1"><Instagram className="w-3.5 h-3.5" /> @kamareddy_aspirant</span>
+                  <p className="text-[10px] text-slate-200 mt-0.5">Fresh registers ready for term revision!</p>
+                </div>
+              </div>
+            </div>
+
+            <div className="relative rounded-2xl overflow-hidden group aspect-square bg-slate-200">
+              <img
+                src="/images/products/ncert-physics-12.jpg"
+                alt="NCERT textbook study desk"
+                className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex items-end p-4 text-white text-xs">
+                <div>
+                  <span className="font-bold flex items-center gap-1"><Instagram className="w-3.5 h-3.5" /> @physics_topper</span>
+                  <p className="text-[10px] text-slate-200 mt-0.5">Got the latest rationalised syllabus edition.</p>
+                </div>
+              </div>
+            </div>
+
+            <div className="relative rounded-2xl overflow-hidden group aspect-square bg-slate-200">
+              <img
+                src="/images/products/vgs-ssc-science.jpg"
+                alt="VGS SSC model papers study session"
+                className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex items-end p-4 text-white text-xs">
+                <div>
+                  <span className="font-bold flex items-center gap-1"><Instagram className="w-3.5 h-3.5" /> @ssc_batch25</span>
+                  <p className="text-[10px] text-slate-200 mt-0.5">Solving chapter-wise VGS question banks!</p>
+                </div>
+              </div>
+            </div>
+
+            <div className="relative rounded-2xl overflow-hidden group aspect-square bg-slate-200">
+              <img
+                src="/images/products/wildcraft-college-backpack.jpg"
+                alt="Student backpack collection"
+                className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex items-end p-4 text-white text-xs">
+                <div>
+                  <span className="font-bold flex items-center gap-1"><Instagram className="w-3.5 h-3.5" /> @campus_gear</span>
+                  <p className="text-[10px] text-slate-200 mt-0.5">Double-strap backpack for college.</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Social Action Channels */}
+          <div className="flex flex-wrap items-center justify-center gap-4">
+            <a
+              href="https://instagram.com"
+              target="_blank"
+              rel="noreferrer"
+              className="inline-flex items-center gap-2 px-5 py-2.5 bg-gradient-to-r from-pink-600 to-purple-600 text-white text-xs font-bold rounded-xl shadow-xs hover:opacity-95 transition"
+            >
+              <Instagram className="w-4 h-4" /> Follow @srithirumalabooks
+            </a>
+            <a
+              href="https://wa.me/919949886640?text=Hi%2C%20please%20add%20me%20to%20the%20Sri%20Thirumala%20Student%20Updates%20broadcast"
+              target="_blank"
+              rel="noreferrer"
+              className="inline-flex items-center gap-2 px-5 py-2.5 bg-[#128C7E] hover:bg-[#075E54] text-white text-xs font-bold rounded-xl shadow-xs transition"
+            >
+              <MessageCircle className="w-4 h-4" /> Join WhatsApp Student Updates
+            </a>
+          </div>
+
+        </div>
+      </section>
+
+      {/* ═══════════════════════════════════════════════════
+          SECTION 10 — PROMINENT NEWSLETTER CTA BANNER
+      ═══════════════════════════════════════════════════ */}
+      <section className="py-14 px-5 sm:px-8 bg-white border-b border-slate-200/60">
+        <div className="max-w-screen-xl mx-auto">
+          <div className="bg-gradient-to-br from-store-charcoal to-slate-900 rounded-3xl p-8 sm:p-14 text-white relative overflow-hidden shadow-xl">
+            
+            {/* Background ambient glow */}
+            <div className="absolute top-0 right-0 w-96 h-96 bg-store-primary/20 rounded-full blur-3xl pointer-events-none"></div>
+
+            <div className="relative z-10 max-w-2xl space-y-4">
+              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-bold bg-white/10 text-store-primary border border-white/10">
+                <Sparkles className="w-3.5 h-3.5" /> Student Privilege Circle
+              </span>
+              <h2 className="text-2xl sm:text-4xl font-black font-serif leading-tight">
+                Unlock 10% OFF Your Next Academic Book Order
+              </h2>
+              <p className="text-slate-300 text-xs sm:text-sm font-medium leading-relaxed">
+                Sign up for instant notifications when new semester question banks, competitive test syllabus releases, and school stationery supplies arrive at Station Road.
+              </p>
+
+              <form onSubmit={handleNewsletterSubmit} className="pt-2 flex flex-col sm:flex-row gap-3 max-w-md">
+                <input
+                  type="email"
+                  required
+                  placeholder="Enter your student / parent email..."
+                  value={newsletterEmail}
+                  onChange={(e) => setNewsletterEmail(e.target.value)}
+                  className="px-4 py-3 bg-white/10 border border-white/20 rounded-xl text-xs text-white placeholder:text-slate-400 focus:outline-none focus:bg-white/20 focus:border-store-primary flex-1"
+                />
+                <button
+                  type="submit"
+                  className="px-6 py-3 bg-store-primary hover:bg-store-primary-dark text-white text-xs font-bold rounded-xl shadow-md transition flex items-center justify-center gap-2 shrink-0"
+                >
+                  <Send className="w-3.5 h-3.5" /> Get 10% Voucher
+                </button>
+              </form>
+            </div>
+
+          </div>
+        </div>
+      </section>
+
+      {/* ═══════════════════════════════════════════════════
+          SECTION 11 — BOTTOM CTA (EDITORIAL ASSISTANCE STRIP)
       ═══════════════════════════════════════════════════ */}
       <section className="py-14 px-5 sm:px-8 bg-white">
         <div className="max-w-screen-xl mx-auto">
-          <div className="border border-slate-200 rounded-2xl bg-[#F8FAFF] px-8 sm:px-12 py-10 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6">
+          <div className="border border-slate-200 rounded-3xl bg-[#F8FAFF] px-8 sm:px-12 py-10 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6">
             <div>
-              <span className="text-[10px] font-black text-store-primary uppercase tracking-widest block mb-2">Need help?</span>
-              <h3 className="text-xl sm:text-2xl font-black text-store-primary">Don't know which book to pick?</h3>
-              <p className="text-slate-500 text-sm mt-1.5 max-w-md">
-                WhatsApp or call us with your class, board, and subject — and we'll confirm availability instantly.
+              <span className="text-[10px] font-black text-store-primary uppercase tracking-widest block mb-1">Direct Bookstore Assistance</span>
+              <h3 className="text-xl sm:text-2xl font-black text-slate-900 font-serif">Need help selecting your syllabus guide?</h3>
+              <p className="text-slate-600 text-xs sm:text-sm mt-1 max-w-md font-medium">
+                Call or WhatsApp our bookstore staff with your class, board, and subject — and we will confirm stock availability instantly.
               </p>
             </div>
             <div className="flex flex-wrap gap-3 shrink-0">
               <a
-                href="https://wa.me/918897766640"
+                href="https://wa.me/919949886640?text=Hi%20Sri%20Thirumala%20Store%2C%20I%20need%20help%20choosing%20books"
                 target="_blank"
                 rel="noreferrer"
-                className="inline-flex items-center gap-2 bg-[#128C7E] hover:bg-[#075E54] text-white font-bold text-sm px-6 py-3 rounded-lg transition shadow-sm"
+                className="inline-flex items-center gap-2 bg-[#128C7E] hover:bg-[#075E54] text-white font-bold text-xs sm:text-sm px-6 py-3.5 rounded-xl transition shadow-xs"
               >
-                WhatsApp Us
+                <MessageCircle className="w-4 h-4" /> WhatsApp Us
               </a>
               <a
-                href="tel:8897766640"
-                className="inline-flex items-center gap-2 bg-store-primary hover:bg-store-primary-dark text-white font-bold text-sm px-6 py-3.5 rounded-xl transition shadow-sm min-h-[48px]"
+                href="tel:9949886640"
+                className="inline-flex items-center gap-2 bg-store-primary hover:bg-store-primary-dark text-white font-bold text-xs sm:text-sm px-6 py-3.5 rounded-xl transition shadow-xs min-h-[48px]"
               >
-                <Phone className="w-4 h-4" />
-                Call Now
+                <Phone className="w-4 h-4" /> Call +91 99498 86640
               </a>
             </div>
           </div>

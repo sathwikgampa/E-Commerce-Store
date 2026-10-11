@@ -63,14 +63,14 @@ const Footer: React.FC = () => {
           
           {/* Column 2: Quick Links (2 cols) */}
           <div className="lg:col-span-2">
-            <h4 className="text-white font-bold mb-6 text-xs tracking-wider uppercase">Categories</h4>
-            <ul className="space-y-3.5 text-xs font-semibold">
-              <li><Link className="hover:text-store-primary transition-colors" to="/books?category=Textbooks">Textbooks</Link></li>
-              <li><Link className="hover:text-store-primary transition-colors" to="/books?category=Notebooks">Notebooks</Link></li>
-              <li><Link className="hover:text-store-primary transition-colors" to="/books?category=Stationery">Stationery</Link></li>
-              <li><Link className="hover:text-store-primary transition-colors" to="/books?category=School Bags">School Bags</Link></li>
-              <li><Link className="hover:text-store-primary transition-colors" to="/books?category=College Bags">College Bags</Link></li>
-              <li><Link className="hover:text-store-primary transition-colors" to="/books?category=Question Banks">Question Banks</Link></li>
+            <h4 className="text-white font-bold mb-6 text-xs tracking-wider uppercase">Explore Store</h4>
+            <ul className="space-y-3 text-xs font-semibold">
+              <li><Link className="hover:text-store-primary transition-colors" to="/home">Home</Link></li>
+              <li><Link className="hover:text-store-primary transition-colors" to="/books">Academic Catalog</Link></li>
+              <li><Link className="hover:text-store-primary transition-colors text-store-primary" to="/blog">Study Blog &amp; Guides</Link></li>
+              <li><Link className="hover:text-store-primary transition-colors" to="/books?category=Textbooks">NCERT Textbooks</Link></li>
+              <li><Link className="hover:text-store-primary transition-colors" to="/books?category=Question Banks">VGS Question Banks</Link></li>
+              <li><Link className="hover:text-store-primary transition-colors" to="/contact">Station Road Location</Link></li>
             </ul>
           </div>
           
@@ -92,7 +92,7 @@ const Footer: React.FC = () => {
             <div className="flex items-center gap-3 text-xs pt-2">
               <Phone className="w-4.5 h-4.5 text-store-primary shrink-0" />
               <div>
-                <p className="text-slate-450 font-semibold">Store Support</p>
+                <p className="text-slate-400 font-semibold">Store Support &amp; Orders</p>
                 <p className="text-white font-black mt-1 text-sm">+91 99498 86640</p>
               </div>
             </div>
@@ -115,11 +115,11 @@ const Footer: React.FC = () => {
 
             {/* Newsletter Subscription */}
             <form onSubmit={handleSubscribe} className="space-y-2">
-              <p className="text-[10px] text-slate-400 font-bold leading-normal">Receive updates on exam preparation guides & syllabus materials.</p>
+              <p className="text-[10px] text-slate-400 font-bold leading-normal">Subscribe for new syllabus editions &amp; model test releases.</p>
               <div className="flex gap-2">
                 <input 
                   required
-                  className="bg-slate-900 border border-slate-800 rounded-lg px-3 py-2.5 text-xs focus:ring-1 focus:ring-store-primary focus:outline-none text-white placeholder:text-slate-655 flex-grow font-semibold" 
+                  className="bg-slate-900 border border-slate-800 rounded-lg px-3 py-2.5 text-xs focus:ring-1 focus:ring-store-primary focus:outline-none text-white placeholder:text-slate-500 flex-grow font-semibold" 
                   placeholder="Your Email" 
                   type="email" 
                 />
@@ -137,7 +137,8 @@ const Footer: React.FC = () => {
           <p>&copy; {new Date().getFullYear()} Sri Thirumala General Store. All rights reserved.</p>
           <div className="flex gap-6">
             <Link to="/contact" className="hover:text-store-primary transition-colors">Store Directions</Link>
-            <a href="tel:8897766640" className="hover:text-store-primary transition-colors">Call Owner</a>
+            <Link to="/blog" className="hover:text-store-primary transition-colors">Study Journal</Link>
+            <a href="tel:9949886640" className="hover:text-store-primary transition-colors">Call Owner</a>
             <Link to="/books" className="hover:text-store-primary transition-colors">Browse Stock</Link>
           </div>
         </div>
