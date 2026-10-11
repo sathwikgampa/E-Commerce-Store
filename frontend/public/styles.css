@@ -1,11 +1,20 @@
 /* ===================================================================
    SRI THIRUMALA BOOK SELLER & STATIONERY - MODERN DESIGN SYSTEM
-   Brand Palette: Warm Orange (#FF7A50), Soft Peach (#FFF7F5, #FFEFEA),
-   Dark Charcoal (#1A1A2E, #2D3748), Deep Navy (#0A3D91 - Admin).
-   Typography: Lora (Headings), Inter & Outfit (Body & UI).
+   Storefront Brand: Warm Orange (#FF7A50), Soft Peach (#FFF7F5).
+   Admin Brand: Themed Blue (#2196F3), Secondary (#87CEEB), Accent (#FF9800).
+   Lord Venkateshwara Swamy Sacred Iconography & Design System.
+   Typography: Lora (Headings), Inter & Outfit & Open Sans (Body & Admin UI).
    =================================================================== */
 
 :root {
+  /* Admin Themed Blue Palette */
+  --color-admin-primary: #2196F3;
+  --color-admin-primary-dark: #1976D2;
+  --color-admin-secondary: #87CEEB;
+  --color-admin-accent: #FF9800;
+  --color-admin-surface-dark: #0B192C;
+  --color-admin-surface-nav: #132B4F;
+  --color-admin-canvas: #F4F8FB;
   /* Storefront Primary Palette */
   --color-primary: #FF7A50;
   --color-primary-hover: #E05E34;

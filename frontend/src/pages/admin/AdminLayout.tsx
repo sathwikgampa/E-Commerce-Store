@@ -1,29 +1,24 @@
 import React, { useState } from 'react';
 import { Outlet, Link, NavLink, useNavigate, useLocation } from 'react-router-dom';
-import {
-  BookOpen,
-  LayoutDashboard,
-  Settings,
-  LogOut,
-  ArrowLeft,
-  ChevronDown,
-  Package,
-  PackagePlus,
-  PackageMinus,
-  ClipboardList,
-  AlertTriangle,
-  PackageX,
-} from 'lucide-react';
 import { toast } from 'sonner';
+import { 
+  VenkateshwaraNamamIcon, 
+  VenkateshwaraFullEmblem, 
+  ShankhaIcon, 
+  ChakraIcon, 
+  PadmamIcon, 
+  KireetamIcon 
+} from '../../components/icons/VenkateshwaraIcons';
 import { useInventoryStore } from '../../store/inventoryStore';
+import { clearAdminSession } from '../../config/adminAuth';
 
 const INVENTORY_NAV = [
-  { to: '/admin/inventory',          label: 'Dashboard',         icon: LayoutDashboard, end: true  },
-  { to: '/admin/inventory/incoming', label: 'Incoming Stock',    icon: PackagePlus },
-  { to: '/admin/inventory/outgoing', label: 'Outgoing Stock',    icon: PackageMinus },
-  { to: '/admin/inventory/history',  label: 'Stock History',     icon: ClipboardList },
-  { to: '/admin/inventory/alerts',   label: 'Low Stock Alerts',  icon: AlertTriangle },
-  { to: '/admin/inventory/damaged',  label: 'Damaged / Returned',icon: PackageX },
+  { to: '/admin/inventory',          label: 'Inventory Overview', IconComponent: ChakraIcon, end: true },
+  { to: '/admin/inventory/incoming', label: 'Incoming Stock',    IconComponent: ShankhaIcon },
+  { to: '/admin/inventory/outgoing', label: 'Outgoing Stock',    IconComponent: PadmamIcon },
+  { to: '/admin/inventory/history',  label: 'Stock Ledger History', IconComponent: ChakraIcon },
+  { to: '/admin/inventory/alerts',   label: 'Low Stock Alerts',  IconComponent: VenkateshwaraNamamIcon },
+  { to: '/admin/inventory/damaged',  label: 'Damaged / Returns', IconComponent: ShankhaIcon },
 ];
 
 const AdminLayout: React.FC = () => {
@@ -36,79 +31,102 @@ const AdminLayout: React.FC = () => {
   const alertCount = getLowStockProducts().length;
 
   const handleLogout = () => {
-    localStorage.removeItem('admin_token');
-    toast.success('Logged out of admin panel successfully.');
+    clearAdminSession();
+    toast.success('Administrator signed out securely.');
     navigate('/admin/login');
   };
 
+  // Build breadcrumb items based on current path
+  const getBreadcrumbs = () => {
+    const parts = location.pathname.split('/').filter(Boolean);
+    const crumbs = [{ label: 'Admin Home', path: '/admin' }];
+
+    if (parts.includes('inventory')) {
+      crumbs.push({ label: 'Inventory Management', path: '/admin/inventory' });
+      const lastPart = parts[parts.length - 1];
+      if (lastPart === 'incoming') crumbs.push({ label: 'Incoming Shipments', path: '/admin/inventory/incoming' });
+      else if (lastPart === 'outgoing') crumbs.push({ label: 'Outgoing Stock', path: '/admin/inventory/outgoing' });
+      else if (lastPart === 'history') crumbs.push({ label: 'Stock History Ledger', path: '/admin/inventory/history' });
+      else if (lastPart === 'alerts') crumbs.push({ label: 'Low Stock Alerts', path: '/admin/inventory/alerts' });
+      else if (lastPart === 'damaged') crumbs.push({ label: 'Damaged & Returns', path: '/admin/inventory/damaged' });
+    }
+    return crumbs;
+  };
+
+  const breadcrumbs = getBreadcrumbs();
+
   const navLinkCls = ({ isActive }: { isActive: boolean }) =>
-    `flex items-center px-4 py-2.5 rounded-xl transition-colors text-xs font-bold ${
+    `flex items-center px-4 py-2.5 rounded-xl transition-all text-xs font-bold ${
       isActive
-        ? 'bg-[#0A3D91] text-white'
-        : 'text-slate-400 hover:bg-slate-900 hover:text-white'
+        ? 'bg-[#2196F3] text-white shadow-sm ring-1 ring-[#87CEEB]'
+        : 'text-slate-300 hover:bg-[#132B4F] hover:text-white'
     }`;
 
   return (
-    <div className="flex min-h-screen bg-[#F8FAFC] text-left">
-      {/* ── Sidebar ─────────────────────────────────────────────── */}
-      <aside className="w-64 bg-[#040D21] text-slate-350 shrink-0 flex flex-col border-r border-slate-900">
-        {/* Brand */}
-        <div className="p-6 border-b border-slate-900">
-          <Link to="/" className="flex items-center gap-2.5 text-white mb-2">
-            <div className="bg-[#0A3D91] p-2 rounded-lg text-accent border border-slate-800 shadow-md">
-              <BookOpen className="h-5 w-5 text-[#D4AF37]" />
+    <div className="flex min-h-screen bg-[#F4F8FB] text-left">
+      
+      {/* ── Sidebar (Deep Midnight Navy #0B192C with Blue Accents) ── */}
+      <aside className="w-64 bg-[#0B192C] text-slate-300 shrink-0 flex flex-col border-r border-[#132B4F] z-20">
+        
+        {/* Lord Venkateshwara Swamy Sacred Brand Header */}
+        <div className="p-5 border-b border-[#132B4F]">
+          <Link to="/admin" className="flex items-center gap-3 text-white group">
+            <div className="p-1.5 bg-[#132B4F] rounded-xl border border-[#87CEEB]/30 group-hover:border-[#2196F3] transition-colors shadow-xs">
+              <VenkateshwaraNamamIcon className="w-7 h-7" />
             </div>
             <div className="flex flex-col">
-              <span className="font-bold text-sm tracking-tight text-white leading-none">Sri Thirumala</span>
-              <span className="text-[8px] font-bold uppercase tracking-widest leading-none mt-1 text-[#D4AF37]">
-                Admin Area
+              <span className="font-black text-sm tracking-tight text-white leading-tight">Sri Thirumala</span>
+              <span className="text-[9px] font-black uppercase tracking-widest leading-none mt-1 text-[#87CEEB] flex items-center gap-1">
+                <KireetamIcon className="w-3 h-3 text-[#FF9800]" /> Admin Portal
               </span>
             </div>
           </Link>
         </div>
 
-        {/* Nav */}
-        <nav className="flex-grow p-4 space-y-1 text-xs font-bold overflow-y-auto">
-          {/* Main Dashboard */}
+        {/* Navigation Section */}
+        <nav className="flex-grow p-4 space-y-1 text-xs font-bold overflow-y-auto" aria-label="Admin Sidebar">
+          
+          {/* Main Dashboard Link */}
           <NavLink to="/admin" end className={navLinkCls}>
-            <LayoutDashboard className="h-4 w-4 mr-3 text-[#D4AF37]" />
-            Dashboard
+            <ChakraIcon className="h-4 w-4 mr-3 text-[#87CEEB]" />
+            Dashboard Overview
           </NavLink>
 
-          {/* ── Inventory Section ──────────────────────────────── */}
-          <div className="pt-3 pb-1">
-            <p className="px-4 text-[8px] font-black text-slate-600 uppercase tracking-widest">
-              Inventory
+          {/* ── Inventory Module Section ──────────────────────────── */}
+          <div className="pt-4 pb-1">
+            <p className="px-4 text-[9px] font-black text-slate-400 uppercase tracking-widest flex items-center gap-1.5">
+              <PadmamIcon className="w-3 h-3 text-[#FF9800]" /> Inventory Controls
             </p>
           </div>
 
-          {/* Inventory toggle */}
+          {/* Inventory accordion header */}
           <button
+            type="button"
             onClick={() => setInventoryOpen((o) => !o)}
-            className={`w-full flex items-center justify-between px-4 py-2.5 rounded-xl transition-colors text-xs font-bold ${
+            className={`w-full flex items-center justify-between px-4 py-2.5 rounded-xl transition-all text-xs font-bold ${
               isInventoryActive
-                ? 'bg-slate-900 text-white'
-                : 'text-slate-400 hover:bg-slate-900 hover:text-white'
+                ? 'bg-[#132B4F] text-white border border-[#87CEEB]/40'
+                : 'text-slate-300 hover:bg-[#132B4F] hover:text-white'
             }`}
           >
-            <span className="flex items-center gap-3">
-              <Package className="h-4 w-4 text-[#D4AF37]" />
-              Inventory
+            <span className="flex items-center gap-2.5">
+              <ShankhaIcon className="h-4 w-4 text-[#87CEEB]" />
+              Stock Inventory
               {alertCount > 0 && (
-                <span className="ml-1 px-1.5 py-0.5 rounded-full bg-amber-500 text-white text-[8px] font-black">
+                <span className="ml-1 px-1.5 py-0.5 rounded-full bg-[#FF9800] text-slate-900 text-[8px] font-black">
                   {alertCount}
                 </span>
               )}
             </span>
-            <ChevronDown
-              className={`h-3.5 w-3.5 transition-transform duration-200 ${inventoryOpen ? 'rotate-180' : ''}`}
-            />
+            <span className="text-[10px] text-slate-400 font-normal">
+              {inventoryOpen ? '▲' : '▼'}
+            </span>
           </button>
 
-          {/* Inventory sub-items */}
+          {/* Inventory sub-links */}
           {inventoryOpen && (
-            <div className="ml-3 pl-3 border-l border-slate-800 space-y-0.5 mt-0.5">
-              {INVENTORY_NAV.map(({ to, label, icon: Icon, end }) => (
+            <div className="ml-3 pl-3 border-l-2 border-[#132B4F] space-y-1 mt-1">
+              {INVENTORY_NAV.map(({ to, label, IconComponent, end }) => (
                 <NavLink
                   key={to}
                   to={to}
@@ -116,15 +134,15 @@ const AdminLayout: React.FC = () => {
                   className={({ isActive }) =>
                     `flex items-center px-3 py-2 rounded-lg transition-colors text-[11px] font-bold ${
                       isActive
-                        ? 'bg-[#0A3D91] text-white'
-                        : 'text-slate-500 hover:bg-slate-800 hover:text-slate-200'
+                        ? 'bg-[#2196F3] text-white'
+                        : 'text-slate-400 hover:bg-[#132B4F] hover:text-slate-100'
                     }`
                   }
                 >
-                  <Icon className="h-3.5 w-3.5 mr-2.5 shrink-0" />
-                  {label}
+                  <IconComponent className="h-3.5 w-3.5 mr-2 shrink-0 text-[#87CEEB]" />
+                  <span className="truncate">{label}</span>
                   {label === 'Low Stock Alerts' && alertCount > 0 && (
-                    <span className="ml-auto px-1.5 py-0.5 rounded-full bg-amber-500 text-white text-[8px] font-black">
+                    <span className="ml-auto px-1.5 py-0.5 rounded-full bg-[#FF9800] text-slate-900 text-[8px] font-black">
                       {alertCount}
                     </span>
                   )}
@@ -133,46 +151,79 @@ const AdminLayout: React.FC = () => {
             </div>
           )}
 
-          {/* ── Settings ──────────────────────────────────────── */}
-          <div className="pt-3 pb-1">
-            <p className="px-4 text-[8px] font-black text-slate-600 uppercase tracking-widest">
-              General
+          {/* ── Utilities Section ─────────────────────────────────── */}
+          <div className="pt-4 pb-1">
+            <p className="px-4 text-[9px] font-black text-slate-400 uppercase tracking-widest flex items-center gap-1.5">
+              <KireetamIcon className="w-3 h-3 text-[#FF9800]" /> Store Links
             </p>
           </div>
 
-          <a
-            href="#"
-            className="flex items-center px-4 py-2.5 hover:bg-slate-900 hover:text-white rounded-xl transition-colors text-slate-400 text-xs font-bold"
-          >
-            <Settings className="h-4 w-4 mr-3" />
-            Settings
-          </a>
-
           <Link
             to="/home"
-            className="flex items-center px-4 py-2.5 hover:bg-slate-900 hover:text-white rounded-xl transition-colors text-slate-400 text-xs font-bold"
+            className="flex items-center px-4 py-2.5 hover:bg-[#132B4F] hover:text-white rounded-xl transition-colors text-slate-300 text-xs font-bold"
           >
-            <ArrowLeft className="h-4 w-4 mr-3" />
-            Back to Storefront
+            <PadmamIcon className="h-4 w-4 mr-3 text-[#87CEEB]" />
+            Live Bookstore Storefront
           </Link>
         </nav>
 
-        {/* Logout */}
-        <div className="p-4 border-t border-slate-900 text-xs font-bold">
+        {/* Logout Control */}
+        <div className="p-4 border-t border-[#132B4F] text-xs font-bold">
           <button
+            type="button"
             onClick={handleLogout}
-            className="flex w-full items-center px-4 py-3 hover:bg-rose-500/10 text-rose-500 hover:text-rose-400 rounded-xl transition-colors"
+            className="flex w-full items-center justify-center px-4 py-3 bg-rose-500/10 hover:bg-rose-500/20 text-rose-400 rounded-xl transition-colors gap-2"
           >
-            <LogOut className="h-4 w-4 mr-3" />
-            Logout
+            <span>Sign Out Admin</span>
           </button>
         </div>
+
       </aside>
 
-      {/* ── Main Content ────────────────────────────────────────── */}
-      <main className="flex-grow w-full overflow-y-auto">
-        <Outlet />
-      </main>
+      {/* ── Main Content Area with Material-UI Top Bar & Breadcrumbs ── */}
+      <div className="flex-1 flex flex-col min-w-0 overflow-y-auto">
+        
+        {/* Top App Bar with Breadcrumbs & Lord Venkateshwara Insignia */}
+        <header className="bg-white border-b border-slate-200 px-6 py-3.5 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 sticky top-0 z-10 shadow-xs">
+          
+          {/* Breadcrumb Navigation Trail */}
+          <nav aria-label="Breadcrumb" className="flex items-center gap-2 text-xs font-bold text-slate-500 flex-wrap">
+            <VenkateshwaraNamamIcon className="w-4 h-4 mr-1 text-[#2196F3] shrink-0" />
+            {breadcrumbs.map((crumb, idx) => (
+              <React.Fragment key={crumb.path}>
+                {idx > 0 && <span className="text-slate-300">/</span>}
+                {idx === breadcrumbs.length - 1 ? (
+                  <span className="text-[#0B192C] font-extrabold">{crumb.label}</span>
+                ) : (
+                  <Link to={crumb.path} className="text-[#2196F3] hover:underline">
+                    {crumb.label}
+                  </Link>
+                )}
+              </React.Fragment>
+            ))}
+          </nav>
+
+          {/* Offline Store Badge & Location */}
+          <div className="flex items-center gap-3 text-xs">
+            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-bold bg-[#E3F2FD] text-[#2196F3] border border-[#87CEEB]">
+              <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+              Station Road Storefront Active
+            </span>
+            <div className="hidden md:flex items-center gap-1.5 font-bold text-slate-700 bg-slate-50 px-3 py-1 rounded-lg border border-slate-200">
+              <KireetamIcon className="w-3.5 h-3.5 text-[#FF9800]" />
+              <span>Admin: Kamareddy Branch</span>
+            </div>
+          </div>
+
+        </header>
+
+        {/* Page View Outlet */}
+        <main className="flex-grow w-full">
+          <Outlet />
+        </main>
+
+      </div>
+
     </div>
   );
 };

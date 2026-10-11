@@ -10,11 +10,12 @@
   --color-store-charcoal: #1A1A2E;
   --color-store-charcoal-light: #2D3748;
 
-  /* Admin/Default Brand Colors (Dark Navy Blue) */
-  --color-primary: #0A3D91;
-  --color-primary-dark: #082C6C;
-  --color-accent: #D4AF37;
-  --color-accent-dark: #B8961F;
+  /* Admin Portal Themed Brand Colors (Themed Blue Scheme) */
+  --color-primary: #2196F3;
+  --color-primary-dark: #1976D2;
+  --color-secondary: #87CEEB;
+  --color-accent: #FF9800;
+  --color-accent-dark: #F57C00;
 
   /* Backgrounds */
   --color-background-light: #FFF7F5; /* Matches soft peach default storefront background */
