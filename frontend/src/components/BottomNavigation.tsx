@@ -1,79 +1,70 @@
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { Home, Search, ShoppingCart, Heart, User } from 'lucide-react';
+import { Heart, Home, LibraryBig, ShoppingBag, User } from 'lucide-react';
 import useCartStore from '../store/cartStore';
 import useWishlistStore from '../store/wishlistStore';
+import { cn } from '../lib/utils';
 
+// Mobile-only tab bar. Rendered by the storefront shell (hidden during checkout).
 const BottomNavigation: React.FC = () => {
-  const location = useLocation();
-  const cartItems = useCartStore((state) => state.items) || [];
-  const wishlistItems = useWishlistStore((state) => state.items) || [];
-  
-  const cartItemCount = cartItems.reduce((acc, item) => acc + item.quantity, 0);
-  const wishlistCount = wishlistItems.length;
+  const { pathname, search } = useLocation();
+  const cartCount = useCartStore((s) => s.items.reduce((sum, item) => sum + item.quantity, 0));
+  const wishlistCount = useWishlistStore((s) => s.items.length);
+  const isWishlist = pathname === '/books' && new URLSearchParams(search).get('wishlist') === 'true';
 
-  const navItems = [
+  const items = [
+    { label: 'Home', icon: Home, to: '/home', active: pathname === '/home' },
     {
-      label: 'Home',
-      icon: Home,
-      path: '/home',
+      label: 'Shop',
+      icon: LibraryBig,
+      to: '/books',
+      active: (pathname === '/books' && !isWishlist) || pathname.startsWith('/book/'),
     },
+    { label: 'Wishlist', icon: Heart, to: '/books?wishlist=true', active: isWishlist, badge: wishlistCount },
+    { label: 'Cart', icon: ShoppingBag, to: '/cart', active: pathname === '/cart', badge: cartCount },
     {
-      label: 'Search',
-      icon: Search,
-      path: '/books',
-    },
-    {
-      label: 'Cart',
-      icon: ShoppingCart,
-      path: '/cart',
-      badge: cartItemCount,
-    },
-    {
-      label: 'Wishlist',
-      icon: Heart,
-      path: '/books?wishlist=true',
-      badge: wishlistCount,
-    },
-    {
-      label: 'Profile',
+      label: 'Account',
       icon: User,
-      path: '/login',
+      to: '/dashboard',
+      active: ['/dashboard', '/account', '/login'].includes(pathname),
     },
   ];
 
   return (
-    <nav className="md:hidden fixed bottom-0 left-0 right-0 z-50 h-16 bg-white/95 backdrop-blur-md border-t border-slate-200/80 flex items-center justify-around shadow-[0_-4px_20px_rgba(0,0,0,0.05)] pb-safe px-2">
-      {navItems.map((item) => {
-        const isActive = 
-          item.path.includes('?') 
-            ? location.pathname + location.search === item.path
-            : location.pathname === item.path || (item.path === '/books' && location.pathname === '/books' && !location.search.includes('wishlist'));
-            
-        const Icon = item.icon;
-
-        return (
-          <Link
-            key={item.label}
-            to={item.path}
-            className="flex flex-col items-center justify-center flex-1 h-full min-w-[64px] relative active:scale-95 transition-transform"
-            style={{ WebkitTapHighlightColor: 'transparent' }}
-          >
-            <div className={`p-1.5 rounded-xl transition-all duration-200 ${isActive ? 'text-store-primary' : 'text-slate-500 hover:text-slate-800'}`}>
-              <Icon className="w-5 h-5" />
-              
-              {item.badge !== undefined && item.badge > 0 && (
-                <span className="absolute top-2 right-4 bg-store-primary text-white text-[9px] font-black w-4.5 h-4.5 flex items-center justify-center rounded-full shadow-xs border border-white">
-                  {item.badge}
-                </span>
+    <nav
+      aria-label="Quick navigation"
+      className="fixed inset-x-0 bottom-0 z-40 border-t border-store-line bg-white/95 backdrop-blur-sm pb-safe md:hidden"
+    >
+      <ul className="mx-auto flex h-16 max-w-md items-stretch">
+        {items.map(({ label, icon: Icon, to, active, badge }) => (
+          <li key={label} className="flex-1">
+            <Link
+              to={to}
+              aria-current={active ? 'page' : undefined}
+              aria-label={badge ? `${label}, ${badge} ${badge === 1 ? 'item' : 'items'}` : undefined}
+              className={cn(
+                'relative flex h-full flex-col items-center justify-center gap-1 text-[11px] font-medium transition-colors',
+                'focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-store-primary',
+                active ? 'text-store-primary' : 'text-store-charcoal-light'
               )}
-            </div>
-            <span className={`text-[9px] font-bold tracking-tight leading-none mt-0.5 ${isActive ? 'text-store-primary font-black' : 'text-slate-500'}`}>
-              {item.label}
-            </span>
-          </Link>
-        );
-      })}
+            >
+              {active && <span aria-hidden="true" className="absolute top-0 h-0.5 w-8 rounded-full bg-store-primary" />}
+              <span className="relative">
+                <Icon className="h-[21px] w-[21px]" strokeWidth={active ? 2 : 1.75} aria-hidden="true" />
+                {badge !== undefined && badge > 0 && (
+                  <span
+                    aria-hidden="true"
+                    className="absolute -right-2.5 -top-1.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-store-primary px-1 text-[9px] font-semibold leading-none text-white ring-2 ring-white"
+                  >
+                    {badge > 99 ? '99+' : badge}
+                  </span>
+                )}
+              </span>
+              {label}
+            </Link>
+          </li>
+        ))}
+      </ul>
     </nav>
   );
 };

@@ -1,12 +1,20 @@
 import React, { useState, useMemo } from 'react';
-import { Search, Filter, ClipboardList } from 'lucide-react';
+import { ClipboardList, X } from 'lucide-react';
 import { useInventoryStore } from '../../../store/inventoryStore';
 import { StockBadge } from '../../../components/inventory/StockBadge';
 import ExportButton from '../../../components/inventory/ExportButton';
 import { useProducts } from '../../../api/queries';
+import { Panel, MonoTag, table } from '../../../components/admin/AdminUI';
+import { SearchInput } from '../../../components/ui/SearchInput';
+import { EmptyState } from '../../../components/ui/EmptyState';
+import { Button } from '../../../components/ui/Button';
 import type { TransactionType } from '../../../types/inventory';
+import { cn } from '../../../lib/utils';
 
 const PAGE_SIZE = 20;
+
+const filterCls =
+  'h-9 rounded-md border border-admin-line bg-white px-2 text-[13px] text-slate-900 focus:border-navy focus:outline-none focus:ring-2 focus:ring-navy/15';
 
 const StockHistory: React.FC = () => {
   const transactions = useInventoryStore((s) => s.transactions);
@@ -21,29 +29,23 @@ const StockHistory: React.FC = () => {
   const [dateTo, setDateTo] = useState('');
   const [page, setPage] = useState(1);
 
-  // Unique users and reasons for filter dropdowns
-  const allUsers = useMemo(
-    () => [...new Set(transactions.map((t) => t.handledBy))].filter(Boolean),
-    [transactions]
-  );
+  const allUsers = useMemo(() => [...new Set(transactions.map((t) => t.handledBy))].filter(Boolean), [transactions]);
   const allReasons = useMemo(
-    () => [...new Set(transactions.map((t) => t.reason).filter(Boolean))],
+    () => [...new Set(transactions.map((t) => t.reason).filter(Boolean))] as string[],
     [transactions]
   );
 
-  // Filter logic
   const filtered = useMemo(() => {
+    const q = search.toLowerCase();
     return transactions.filter((t) => {
-      if (search) {
-        const q = search.toLowerCase();
-        if (
-          !t.productTitle.toLowerCase().includes(q) &&
-          !t.sku.toLowerCase().includes(q) &&
-          !t.handledBy.toLowerCase().includes(q) &&
-          !(t.invoiceNumber ?? '').toLowerCase().includes(q)
-        )
-          return false;
-      }
+      if (
+        q &&
+        !t.productTitle.toLowerCase().includes(q) &&
+        !t.sku.toLowerCase().includes(q) &&
+        !t.handledBy.toLowerCase().includes(q) &&
+        !(t.invoiceNumber ?? '').toLowerCase().includes(q)
+      )
+        return false;
       if (filterProduct && t.productId !== filterProduct) return false;
       if (filterType && t.type !== filterType) return false;
       if (filterReason && t.reason !== filterReason) return false;
@@ -54,9 +56,11 @@ const StockHistory: React.FC = () => {
     });
   }, [transactions, search, filterProduct, filterType, filterReason, filterUser, dateFrom, dateTo]);
 
-  const totalPages = Math.ceil(filtered.length / PAGE_SIZE);
-  const paginated = filtered.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
+  const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
+  const current = Math.min(page, totalPages);
+  const paginated = filtered.slice((current - 1) * PAGE_SIZE, current * PAGE_SIZE);
 
+  const hasFilters = !!(search || filterProduct || filterType || filterReason || filterUser || dateFrom || dateTo);
   const resetFilters = () => {
     setSearch('');
     setFilterProduct('');
@@ -67,249 +71,146 @@ const StockHistory: React.FC = () => {
     setDateTo('');
     setPage(1);
   };
-
-  const hasFilters = search || filterProduct || filterType || filterReason || filterUser || dateFrom || dateTo;
-
-  const inputCls = 'px-3 py-2 rounded-xl border border-slate-200 bg-white text-xs font-semibold text-slate-800 outline-none focus:ring-2 focus:ring-[#0A3D91]/10 focus:border-[#0A3D91]/40 transition';
+  // Every filter change returns to page 1
+  const on = <T,>(setter: (v: T) => void) => (v: T) => {
+    setter(v);
+    setPage(1);
+  };
 
   return (
-    <div className="p-6 sm:p-8 space-y-5">
-      {/* ── Header + Export ─────────────────────────────────────────── */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h2 className="text-lg font-black text-slate-900 flex items-center gap-2">
-            <ClipboardList className="w-4.5 h-4.5 text-[#0A3D91]" />
-            Stock History
-          </h2>
-          <p className="text-[10px] text-slate-400 font-semibold mt-0.5">
-            Complete audit log · {filtered.length} records
-          </p>
+    <Panel
+      title="Stock history"
+      description={`Complete audit trail · ${filtered.length}${hasFilters ? ` of ${transactions.length}` : ''} records`}
+      actions={<ExportButton transactions={filtered} filename="stock-history" />}
+    >
+      {/* Filters */}
+      <div className="flex flex-wrap items-end gap-2 border-b border-admin-line bg-slate-50/60 px-4 py-3 sm:px-5">
+        <SearchInput
+          size="sm"
+          value={search}
+          onChange={(e) => on(setSearch)(e.target.value)}
+          onClear={() => on(setSearch)('')}
+          placeholder="Product, SKU, user, invoice"
+          aria-label="Search history"
+          wrapperClassName="w-full sm:w-64"
+        />
+        <label className="sr-only" htmlFor="h-product">Product</label>
+        <select id="h-product" value={filterProduct} onChange={(e) => on(setFilterProduct)(e.target.value)} className={cn(filterCls, 'max-w-[14rem]')}>
+          <option value="">All products</option>
+          {products.map((p) => <option key={p._id} value={p._id}>{p.title}</option>)}
+        </select>
+        <label className="sr-only" htmlFor="h-type">Movement type</label>
+        <select id="h-type" value={filterType} onChange={(e) => on(setFilterType)(e.target.value as '' | TransactionType)} className={filterCls}>
+          <option value="">In &amp; out</option>
+          <option value="IN">Incoming only</option>
+          <option value="OUT">Outgoing only</option>
+        </select>
+        <label className="sr-only" htmlFor="h-reason">Reason</label>
+        <select id="h-reason" value={filterReason} onChange={(e) => on(setFilterReason)(e.target.value)} className={filterCls}>
+          <option value="">All reasons</option>
+          {allReasons.map((r) => <option key={r} value={r}>{r}</option>)}
+        </select>
+        <label className="sr-only" htmlFor="h-user">Performed by</label>
+        <select id="h-user" value={filterUser} onChange={(e) => on(setFilterUser)(e.target.value)} className={filterCls}>
+          <option value="">All users</option>
+          {allUsers.map((u) => <option key={u} value={u}>{u}</option>)}
+        </select>
+        <div className="flex items-center gap-1.5 text-[13px] text-slate-500">
+          <label htmlFor="h-from">From</label>
+          <input id="h-from" type="date" value={dateFrom} onChange={(e) => on(setDateFrom)(e.target.value)} className={filterCls} />
+          <label htmlFor="h-to">to</label>
+          <input id="h-to" type="date" value={dateTo} min={dateFrom || undefined} onChange={(e) => on(setDateTo)(e.target.value)} className={filterCls} />
         </div>
-        <ExportButton transactions={filtered} filename="stock-history" />
-      </div>
-
-      {/* ── Filters ─────────────────────────────────────────────────── */}
-      <div className="bg-white rounded-2xl border border-slate-200 p-4">
-        <div className="flex flex-wrap gap-3 items-end">
-          {/* Search */}
-          <div className="relative flex-1 min-w-[180px]">
-            <Search className="absolute left-3 top-2.5 w-3.5 h-3.5 text-slate-400" />
-            <input
-              type="text"
-              placeholder="Search product, SKU, user, invoice..."
-              value={search}
-              onChange={(e) => { setSearch(e.target.value); setPage(1); }}
-              className={`${inputCls} pl-9 w-full`}
-            />
-          </div>
-
-          {/* Product filter */}
-          <select
-            value={filterProduct}
-            onChange={(e) => { setFilterProduct(e.target.value); setPage(1); }}
-            className={inputCls}
-          >
-            <option value="">All Products</option>
-            {products.map((p) => (
-              <option key={p._id} value={p._id}>{p.title}</option>
-            ))}
-          </select>
-
-          {/* Type filter */}
-          <select
-            value={filterType}
-            onChange={(e) => { setFilterType(e.target.value as any); setPage(1); }}
-            className={inputCls}
-          >
-            <option value="">IN + OUT</option>
-            <option value="IN">Incoming Only</option>
-            <option value="OUT">Outgoing Only</option>
-          </select>
-
-          {/* Reason filter */}
-          <select
-            value={filterReason}
-            onChange={(e) => { setFilterReason(e.target.value); setPage(1); }}
-            className={inputCls}
-          >
-            <option value="">All Reasons</option>
-            {allReasons.map((r) => (
-              <option key={r} value={r}>{r}</option>
-            ))}
-          </select>
-
-          {/* User filter */}
-          <select
-            value={filterUser}
-            onChange={(e) => { setFilterUser(e.target.value); setPage(1); }}
-            className={inputCls}
-          >
-            <option value="">All Users</option>
-            {allUsers.map((u) => (
-              <option key={u} value={u}>{u}</option>
-            ))}
-          </select>
-
-          {/* Date range */}
-          <input
-            type="date"
-            value={dateFrom}
-            onChange={(e) => { setDateFrom(e.target.value); setPage(1); }}
-            className={inputCls}
-            title="From date"
-          />
-          <input
-            type="date"
-            value={dateTo}
-            onChange={(e) => { setDateTo(e.target.value); setPage(1); }}
-            className={inputCls}
-            title="To date"
-          />
-
-          {hasFilters && (
-            <button
-              onClick={resetFilters}
-              className="px-3 py-2 rounded-xl text-[10px] font-black text-rose-600 hover:bg-rose-50 border border-rose-200 transition uppercase tracking-wider"
-            >
-              Clear Filters
-            </button>
-          )}
-        </div>
-
         {hasFilters && (
-          <p className="mt-2 text-[10px] text-slate-400 font-semibold flex items-center gap-1.5">
-            <Filter className="w-3 h-3" />
-            Showing {filtered.length} of {transactions.length} records
-          </p>
+          <Button size="sm" variant="ghost" onClick={resetFilters}>
+            <X className="h-4 w-4" aria-hidden="true" /> Clear
+          </Button>
         )}
       </div>
 
-      {/* ── Table ───────────────────────────────────────────────────── */}
-      <div className="bg-white rounded-2xl border border-slate-200 shadow-xs overflow-hidden">
-        <div className="overflow-x-auto">
-          <table className="w-full text-left min-w-[1000px]">
-            <thead>
-              <tr className="bg-slate-50 text-slate-400 text-[9px] font-bold uppercase tracking-widest">
-                <th className="px-5 py-3 rounded-tl-2xl">Date & Time</th>
-                <th className="px-5 py-3">Product</th>
-                <th className="px-5 py-3">SKU</th>
-                <th className="px-5 py-3">Action</th>
-                <th className="px-5 py-3 text-right">Qty</th>
-                <th className="px-5 py-3 text-right">Prev Stock</th>
-                <th className="px-5 py-3 text-right">New Stock</th>
-                <th className="px-5 py-3">Reason</th>
-                <th className="px-5 py-3">Performed By</th>
-                <th className="px-5 py-3 rounded-tr-2xl">Remarks</th>
+      {paginated.length === 0 ? (
+        <EmptyState
+          compact
+          icon={<ClipboardList />}
+          title={transactions.length ? 'No records match these filters' : 'No stock movements yet'}
+          description={transactions.length ? 'Adjust or clear the filters.' : 'Receiving or removing stock creates entries here.'}
+        />
+      ) : (
+        <div className={table.wrap}>
+          <table className={`${table.table} min-w-[1040px]`}>
+            <thead className={table.thead}>
+              <tr>
+                <th scope="col" className={table.th}>Date &amp; time</th>
+                <th scope="col" className={table.th}>Product</th>
+                <th scope="col" className={table.th}>SKU</th>
+                <th scope="col" className={table.th}>Movement</th>
+                <th scope="col" className={`${table.th} text-right`}>Before</th>
+                <th scope="col" className={`${table.th} text-right`}>After</th>
+                <th scope="col" className={table.th}>Reason / supplier</th>
+                <th scope="col" className={table.th}>By</th>
+                <th scope="col" className={table.th}>Invoice · remarks</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-slate-50">
-              {paginated.length === 0 ? (
-                <tr>
-                  <td colSpan={10} className="py-16 text-center">
-                    <div className="flex flex-col items-center gap-2">
-                      <ClipboardList className="w-8 h-8 text-slate-200" />
-                      <p className="text-xs font-bold text-slate-400">No transactions match your filters</p>
-                    </div>
-                  </td>
-                </tr>
-              ) : (
-                paginated.map((txn) => (
-                  <tr key={txn.id} className="hover:bg-slate-50/60 transition-colors group">
-                    <td className="px-5 py-3 whitespace-nowrap">
-                      <p className="text-[10px] font-bold text-slate-700">
-                        {new Date(txn.timestamp).toLocaleDateString('en-IN', {
-                          day: 'numeric', month: 'short', year: '2-digit',
-                        })}
-                      </p>
-                      <p className="text-[9px] text-slate-400 font-semibold mt-0.5">
-                        {new Date(txn.timestamp).toLocaleTimeString('en-IN', {
-                          hour: '2-digit', minute: '2-digit',
-                        })}
-                      </p>
+            <tbody className={table.tbody}>
+              {paginated.map((t) => {
+                const ts = new Date(t.timestamp);
+                return (
+                  <tr key={t.id} className={table.tr}>
+                    <td className={`${table.td} whitespace-nowrap`}>
+                      <time dateTime={t.timestamp} className="block text-slate-900">
+                        {ts.toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })}
+                      </time>
+                      <span className="text-[12px] text-slate-500">{ts.toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' })}</span>
                     </td>
-                    <td className="px-5 py-3 text-xs font-bold text-slate-800 max-w-[180px]">
-                      <span className="line-clamp-2 leading-tight">{txn.productTitle}</span>
+                    <td className={`${table.td} max-w-[14rem]`}>
+                      <span className="line-clamp-2 font-medium text-slate-900">{t.productTitle}</span>
                     </td>
-                    <td className="px-5 py-3">
-                      <span className="text-[9px] font-bold bg-slate-100 text-slate-600 px-2 py-0.5 rounded font-mono">
-                        {txn.sku}
+                    <td className={table.td}><MonoTag>{t.sku}</MonoTag></td>
+                    <td className={table.td}><StockBadge type={t.type} quantity={t.quantity} /></td>
+                    <td className={table.num}>{t.previousStock}</td>
+                    <td className={`${table.num} font-semibold`}>{t.currentStock}</td>
+                    <td className={`${table.td} whitespace-nowrap`}>{t.reason ?? t.supplier ?? '—'}</td>
+                    <td className={table.td}>{t.handledBy}</td>
+                    <td className={`${table.td} max-w-[14rem]`}>
+                      <span className="block truncate" title={[t.invoiceNumber, t.remarks].filter(Boolean).join(' · ')}>
+                        {[t.invoiceNumber, t.remarks].filter(Boolean).join(' · ') || '—'}
                       </span>
-                    </td>
-                    <td className="px-5 py-3">
-                      <StockBadge type={txn.type} />
-                    </td>
-                    <td className="px-5 py-3 text-right">
-                      <span className={`text-xs font-black ${txn.type === 'IN' ? 'text-emerald-600' : 'text-rose-600'}`}>
-                        {txn.type === 'IN' ? '+' : '-'}{txn.quantity}
-                      </span>
-                    </td>
-                    <td className="px-5 py-3 text-right text-xs font-semibold text-slate-500">
-                      {txn.previousStock}
-                    </td>
-                    <td className="px-5 py-3 text-right text-xs font-black text-slate-900">
-                      {txn.currentStock}
-                    </td>
-                    <td className="px-5 py-3">
-                      <span className="text-[10px] font-bold text-slate-600 whitespace-nowrap">
-                        {txn.reason ?? '—'}
-                      </span>
-                    </td>
-                    <td className="px-5 py-3 text-[10px] font-semibold text-slate-600">
-                      {txn.handledBy}
-                    </td>
-                    <td className="px-5 py-3 text-[10px] text-slate-400 font-semibold max-w-[120px] truncate">
-                      {txn.remarks || txn.invoiceNumber || '—'}
                     </td>
                   </tr>
-                ))
-              )}
+                );
+              })}
             </tbody>
           </table>
         </div>
+      )}
 
-        {/* ── Pagination ───────────────────────────────────────── */}
-        {totalPages > 1 && (
-          <div className="flex items-center justify-between px-5 py-3 border-t border-slate-100">
-            <p className="text-[10px] text-slate-400 font-semibold">
-              Page {page} of {totalPages} · {filtered.length} records
-            </p>
-            <div className="flex items-center gap-2">
-              <button
-                onClick={() => setPage((p) => Math.max(1, p - 1))}
-                disabled={page === 1}
-                className="px-3 py-1.5 rounded-lg border border-slate-200 text-[10px] font-bold text-slate-600 hover:bg-slate-50 disabled:opacity-40 disabled:cursor-not-allowed transition"
-              >
-                ← Prev
-              </button>
-              {Array.from({ length: Math.min(totalPages, 5) }, (_, i) => {
-                const pageNum = page <= 3 ? i + 1 : page - 2 + i;
-                if (pageNum > totalPages) return null;
-                return (
+      {totalPages > 1 && (
+        <nav aria-label="Pagination" className="flex flex-wrap items-center justify-between gap-3 border-t border-admin-line px-4 py-3 sm:px-5">
+          <p className="text-[13px] text-slate-500">
+            Page {current} of {totalPages}
+          </p>
+          <div className="flex items-center gap-1">
+            <Button size="sm" variant="secondary" disabled={current === 1} onClick={() => setPage(current - 1)}>Previous</Button>
+            {Array.from({ length: totalPages }, (_, i) => i + 1)
+              .filter((n) => n === 1 || n === totalPages || Math.abs(n - current) <= 1)
+              .map((n, i, arr) => (
+                <React.Fragment key={n}>
+                  {i > 0 && n - arr[i - 1] > 1 && <span className="px-1 text-slate-400">…</span>}
                   <button
-                    key={pageNum}
-                    onClick={() => setPage(pageNum)}
-                    className={`w-7 h-7 rounded-lg text-[10px] font-black transition ${
-                      pageNum === page
-                        ? 'bg-[#0A3D91] text-white'
-                        : 'border border-slate-200 text-slate-600 hover:bg-slate-50'
-                    }`}
+                    type="button"
+                    onClick={() => setPage(n)}
+                    aria-current={n === current ? 'page' : undefined}
+                    className={cn('h-9 min-w-9 rounded-md px-2 text-[13px] tabular', n === current ? 'bg-navy text-white' : 'text-slate-700 hover:bg-slate-100')}
                   >
-                    {pageNum}
+                    {n}
                   </button>
-                );
-              })}
-              <button
-                onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
-                disabled={page === totalPages}
-                className="px-3 py-1.5 rounded-lg border border-slate-200 text-[10px] font-bold text-slate-600 hover:bg-slate-50 disabled:opacity-40 disabled:cursor-not-allowed transition"
-              >
-                Next →
-              </button>
-            </div>
+                </React.Fragment>
+              ))}
+            <Button size="sm" variant="secondary" disabled={current === totalPages} onClick={() => setPage(current + 1)}>Next</Button>
           </div>
-        )}
-      </div>
-    </div>
+        </nav>
+      )}
+    </Panel>
   );
 };
 

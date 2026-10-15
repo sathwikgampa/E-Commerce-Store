@@ -1,165 +1,140 @@
-import React, { useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Search, Clock, Calendar, ArrowRight, BookOpen, Tag, Sparkles } from 'lucide-react';
+import { ArrowRight, BookOpen } from 'lucide-react';
 import { BLOG_POSTS, BlogPost } from '../data/blogData';
+import { SearchInput } from '../components/ui/SearchInput';
+import { EmptyState } from '../components/ui/EmptyState';
+import { Button } from '../components/ui/Button';
+import { cn } from '../lib/utils';
 
-const categories = ['All', 'Exam Preparation', 'Stationery Guide', 'Study Tips'] as const;
+const Meta: React.FC<{ post: BlogPost; className?: string }> = ({ post, className = '' }) => (
+  <p className={cn('text-[13px] text-store-charcoal-light', className)}>
+    <span className="font-medium text-store-charcoal">{post.author.name}</span>
+    <span aria-hidden="true"> · </span>
+    <time>{post.publishedAt}</time>
+    <span aria-hidden="true"> · </span>
+    {post.readTime}
+  </p>
+);
 
 const BlogPage: React.FC = () => {
-  const [selectedCategory, setSelectedCategory] = useState<string>('All');
+  const [selectedCategory, setSelectedCategory] = useState('All');
   const [searchQuery, setSearchQuery] = useState('');
 
-  const filteredPosts = BLOG_POSTS.filter((post) => {
-    const matchesCategory = selectedCategory === 'All' || post.category === selectedCategory;
-    const matchesSearch =
-      post.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      post.excerpt.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      post.tags.some((tag) => tag.toLowerCase().includes(searchQuery.toLowerCase()));
-    return matchesCategory && matchesSearch;
+  const categories = useMemo(() => ['All', ...Array.from(new Set(BLOG_POSTS.map((p) => p.category)))], []);
+
+  const filtered = BLOG_POSTS.filter((post) => {
+    const q = searchQuery.toLowerCase();
+    return (
+      (selectedCategory === 'All' || post.category === selectedCategory) &&
+      (post.title.toLowerCase().includes(q) ||
+        post.excerpt.toLowerCase().includes(q) ||
+        post.tags.some((tag) => tag.toLowerCase().includes(q)))
+    );
   });
 
+  const [featured, ...rest] = filtered;
+
   return (
-    <div className="w-full bg-store-accent min-h-screen py-10 px-4 sm:px-6 lg:px-8 text-left">
-      <div className="max-w-7xl mx-auto space-y-12">
-        
-        {/* Editorial Header */}
-        <div className="text-center max-w-3xl mx-auto space-y-4">
-          <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-store-accent-dark text-store-primary border border-store-primary/20">
-            <Sparkles className="w-3.5 h-3.5" /> Sri Thirumala Learning Journal
-          </span>
-          <h1 className="text-4xl sm:text-5xl font-black text-slate-900 tracking-tight">
-            Academic Insights &amp; Study Guides
+    <div className="mx-auto max-w-store px-5 pb-20 pt-10 sm:px-8 lg:px-12">
+      <header className="grid gap-6 border-b border-store-line pb-8 lg:grid-cols-[1fr_auto] lg:items-end">
+        <div>
+          <p className="text-[12px] font-medium uppercase tracking-[0.18em] text-store-charcoal-light">The study journal</p>
+          <h1 className="mt-3 text-balance font-serif text-[38px] font-semibold leading-[1.05] tracking-tight text-store-charcoal sm:text-[52px]">
+            Guides for exams, syllabus &amp; study
           </h1>
-          <p className="text-slate-600 text-sm sm:text-base font-medium leading-relaxed">
-            Expert recommendations on competitive exam books, curriculum updates, student stationery, and proven study methods from Kamareddy's trusted bookstore.
+          <p className="mt-4 max-w-xl text-[16px] leading-relaxed text-store-charcoal-light">
+            Book lists, board exam preparation and stationery advice from the team at our Kamareddy store.
           </p>
         </div>
+        <SearchInput
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+          onClear={() => setSearchQuery('')}
+          placeholder="Search articles"
+          aria-label="Search articles"
+          wrapperClassName="w-full lg:w-72"
+        />
+      </header>
 
-        {/* Filter & Search Bar */}
-        <div className="bg-white p-4 sm:p-5 rounded-2xl shadow-xs border border-slate-200/80 flex flex-col md:flex-row items-center justify-between gap-4">
-          
-          {/* Category Tabs */}
-          <div className="flex flex-wrap gap-2 w-full md:w-auto">
-            {categories.map((cat) => (
-              <button
-                key={cat}
-                onClick={() => setSelectedCategory(cat)}
-                className={`px-4 py-2 rounded-xl text-xs font-bold transition-all ${
-                  selectedCategory === cat
-                    ? 'bg-store-primary text-white shadow-xs'
-                    : 'bg-slate-100 text-slate-650 hover:bg-slate-200 text-slate-700'
-                }`}
-              >
-                {cat}
-              </button>
-            ))}
-          </div>
-
-          {/* Search Input */}
-          <div className="relative w-full md:w-72">
-            <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
-            <input
-              type="text"
-              placeholder="Search articles & guides..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-10 pr-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold focus:outline-none focus:border-store-primary focus:bg-white transition"
-            />
-          </div>
-        </div>
-
-        {/* Blog Posts Grid */}
-        {filteredPosts.length > 0 ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {filteredPosts.map((post) => (
-              <article
-                key={post.id}
-                className="bg-white rounded-2xl border border-slate-200/80 shadow-xs overflow-hidden flex flex-col justify-between hover:shadow-lg transition-all duration-300 group"
-              >
-                <div>
-                  {/* Article Thumbnail */}
-                  <div className="relative h-52 bg-slate-100 overflow-hidden">
-                    <img
-                      src={post.coverImage}
-                      alt={post.title}
-                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                    />
-                    <div className="absolute top-3 left-3 bg-white/95 backdrop-blur-md px-3 py-1 rounded-full text-[11px] font-bold text-store-primary shadow-xs">
-                      {post.category}
-                    </div>
-                  </div>
-
-                  {/* Body Content */}
-                  <div className="p-6 space-y-3">
-                    <div className="flex items-center gap-3 text-xs text-slate-400 font-semibold">
-                      <span className="flex items-center gap-1">
-                        <Calendar className="w-3.5 h-3.5 text-slate-400" />
-                        {post.publishedAt}
-                      </span>
-                      <span>•</span>
-                      <span className="flex items-center gap-1">
-                        <Clock className="w-3.5 h-3.5 text-slate-400" />
-                        {post.readTime}
-                      </span>
-                    </div>
-
-                    <h2 className="text-xl font-black text-slate-900 group-hover:text-store-primary transition-colors leading-snug">
-                      <Link to={`/blog/${post.slug}`}>
-                        {post.title}
-                      </Link>
-                    </h2>
-
-                    <p className="text-xs sm:text-sm text-slate-600 font-medium leading-relaxed line-clamp-3">
-                      {post.excerpt}
-                    </p>
-
-                    {/* Tags */}
-                    <div className="flex flex-wrap gap-1.5 pt-2">
-                      {post.tags.slice(0, 3).map((tag) => (
-                        <span key={tag} className="text-[10px] font-bold px-2 py-0.5 rounded bg-slate-100 text-slate-600">
-                          #{tag}
-                        </span>
-                      ))}
-                    </div>
-                  </div>
-                </div>
-
-                {/* Footer with Author and CTA */}
-                <div className="p-6 pt-0 border-t border-slate-100 mt-4 flex items-center justify-between">
-                  <div className="flex items-center gap-2.5">
-                    <img
-                      src={post.author.avatar}
-                      alt={post.author.name}
-                      className="w-7 h-7 rounded-full object-cover border border-slate-200"
-                    />
-                    <span className="text-xs font-bold text-slate-700">{post.author.name}</span>
-                  </div>
-
-                  <Link
-                    to={`/blog/${post.slug}`}
-                    className="inline-flex items-center text-xs font-bold text-store-primary hover:text-store-primary-dark group-hover:translate-x-0.5 transition-all"
-                  >
-                    Read More <ArrowRight className="w-3.5 h-3.5 ml-1" />
-                  </Link>
-                </div>
-              </article>
-            ))}
-          </div>
-        ) : (
-          <div className="bg-white rounded-2xl border border-slate-200 p-16 text-center max-w-md mx-auto">
-            <BookOpen className="w-12 h-12 text-slate-300 mx-auto mb-4" />
-            <h3 className="text-lg font-bold text-slate-800">No articles match your criteria</h3>
-            <p className="text-xs text-slate-500 mt-1 mb-6">Try selecting a different topic or clearing your search term.</p>
-            <button
-              onClick={() => { setSelectedCategory('All'); setSearchQuery(''); }}
-              className="px-4 py-2 bg-store-primary text-white text-xs font-bold rounded-xl"
-            >
-              Reset Filters
-            </button>
-          </div>
-        )}
-
+      <div role="tablist" aria-label="Topics" className="mt-6 flex gap-2 overflow-x-auto hide-scrollbar">
+        {categories.map((cat) => (
+          <button
+            key={cat}
+            type="button"
+            role="tab"
+            aria-selected={selectedCategory === cat}
+            onClick={() => setSelectedCategory(cat)}
+            className={cn(
+              'h-9 shrink-0 rounded-full border px-4 text-[14px] font-medium transition-colors',
+              selectedCategory === cat
+                ? 'border-store-charcoal bg-store-charcoal text-white'
+                : 'border-store-line bg-white text-store-charcoal-light hover:text-store-charcoal'
+            )}
+          >
+            {cat}
+          </button>
+        ))}
       </div>
+
+      {!featured ? (
+        <EmptyState
+          icon={<BookOpen />}
+          title="No articles match"
+          description="Try another topic or clear your search."
+          action={<Button onClick={() => { setSelectedCategory('All'); setSearchQuery(''); }}>Show all articles</Button>}
+          className="mt-10 rounded-xl border border-dashed border-store-line"
+        />
+      ) : (
+        <>
+          {/* Featured */}
+          <article className="group mt-10 grid gap-6 lg:grid-cols-12 lg:items-center lg:gap-12">
+            <Link to={`/blog/${featured.slug}`} tabIndex={-1} aria-hidden="true" className="block overflow-hidden rounded-2xl bg-store-muted lg:col-span-7">
+              <img
+                src={featured.coverImage}
+                alt=""
+                className="aspect-[16/10] w-full object-cover transition-transform duration-700 motion-safe:group-hover:scale-[1.02]"
+              />
+            </Link>
+            <div className="lg:col-span-5">
+              <p className="text-[12px] font-semibold uppercase tracking-[0.14em] text-store-primary">{featured.category}</p>
+              <h2 className="mt-3 text-balance font-serif text-[28px] font-semibold leading-tight tracking-tight text-store-charcoal sm:text-[34px]">
+                <Link to={`/blog/${featured.slug}`} className="hover:text-store-primary">{featured.title}</Link>
+              </h2>
+              <p className="mt-4 text-[16px] leading-relaxed text-store-charcoal-light">{featured.excerpt}</p>
+              <Meta post={featured} className="mt-5" />
+              <Link
+                to={`/blog/${featured.slug}`}
+                className="mt-6 inline-flex items-center gap-1.5 text-[15px] font-medium text-store-charcoal underline-offset-4 hover:underline"
+              >
+                Read the guide <ArrowRight className="h-4 w-4" aria-hidden="true" />
+              </Link>
+            </div>
+          </article>
+
+          {/* More articles */}
+          {rest.length > 0 && (
+            <section aria-labelledby="more-articles" className="mt-16 border-t border-store-line pt-10">
+              <h2 id="more-articles" className="font-serif text-2xl font-semibold text-store-charcoal">More from the journal</h2>
+              <div className="mt-8 grid gap-x-8 gap-y-12 md:grid-cols-2 lg:grid-cols-3">
+                {rest.map((post) => (
+                  <article key={post.id} className="group flex flex-col">
+                    <Link to={`/blog/${post.slug}`} tabIndex={-1} aria-hidden="true" className="block overflow-hidden rounded-xl bg-store-muted">
+                      <img src={post.coverImage} alt="" loading="lazy" className="aspect-[3/2] w-full object-cover transition-transform duration-700 motion-safe:group-hover:scale-[1.02]" />
+                    </Link>
+                    <p className="mt-4 text-[12px] font-semibold uppercase tracking-[0.14em] text-store-primary">{post.category}</p>
+                    <h3 className="mt-2 font-serif text-[21px] font-semibold leading-snug text-store-charcoal">
+                      <Link to={`/blog/${post.slug}`} className="hover:text-store-primary">{post.title}</Link>
+                    </h3>
+                    <p className="mt-2 line-clamp-3 text-[15px] leading-relaxed text-store-charcoal-light">{post.excerpt}</p>
+                    <Meta post={post} className="mt-4" />
+                  </article>
+                ))}
+              </div>
+            </section>
+          )}
+        </>
+      )}
     </div>
   );
 };

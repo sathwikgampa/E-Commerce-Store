@@ -81,7 +81,7 @@ const HomePage: React.FC = () => {
   const bestSellers = products.filter((p) => p.rating >= 4.8);
 
   const categoriesList = [
-    { name: 'Textbooks', icon: BookOpen, count: '1,200+ Books', route: '/books?category=Textbooks', color: '#FF7A50', bg: '#FFF7F5' },
+    { name: 'Textbooks', icon: BookOpen, count: '1,200+ Books', route: '/books?category=Textbooks', color: '#0A3D91', bg: '#EAF3FF' },
     { name: 'Notebooks & Registers', icon: BookMarked, count: '300+ Varieties', route: '/books?category=Notebooks', color: '#6B4C13', bg: '#FFF8E7' },
     { name: 'School Supplies', icon: PenTool, count: '500+ Items', route: '/books?category=School Supplies', color: '#2D5016', bg: '#F0F7EC' },
     { name: 'Engineering Materials', icon: FileText, count: '800+ Books', route: '/books?category=Engineering Materials', color: '#3B1F7A', bg: '#F3EFFD' },

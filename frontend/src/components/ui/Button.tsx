@@ -1,16 +1,52 @@
 import React from 'react';
+import { cn } from '../../lib/utils';
 
-export type ButtonVariant = 
-  | 'primary'          // Storefront Warm Orange (#FF7A50)
-  | 'secondary'        // Storefront Soft Peach
-  | 'admin-primary'    // Admin Themed Deep Blue (#2196F3)
-  | 'admin-secondary'  // Admin Light Sky Blue (#87CEEB)
-  | 'admin-accent'     // Admin Saffron Orange (#FF9800)
-  | 'outline'          // Border with transparent bg
-  | 'ghost'            // Text only on hover
-  | 'danger';          // Rose / Red
+export type ButtonVariant =
+  | 'primary'          // Experience action color (ember on storefront, navy in portal/admin)
+  | 'secondary'        // White surface with hairline border
+  | 'dark'             // Charcoal fill — strong neutral action
+  | 'admin-primary'    // Navy, regardless of scope
+  | 'admin-secondary'  // White with navy text
+  | 'admin-accent'     // Saffron fill with dark text (portal highlights)
+  | 'outline'          // Transparent with border
+  | 'ghost'            // Text only, tinted on hover
+  | 'danger';          // Destructive
 
-export type ButtonSize = 'sm' | 'md' | 'lg';
+export type ButtonSize = 'sm' | 'md' | 'lg' | 'icon';
+
+const base =
+  'inline-flex items-center justify-center gap-2 font-semibold whitespace-nowrap select-none transition-colors duration-150 ' +
+  'disabled:cursor-not-allowed disabled:opacity-50 focus-visible:outline-2 focus-visible:outline-offset-2';
+
+const variants: Record<ButtonVariant, string> = {
+  primary: 'bg-action text-white hover:bg-action-hover focus-visible:outline-action',
+  secondary:
+    'bg-white text-fg border border-surface-line hover:bg-surface-muted focus-visible:outline-action',
+  dark: 'bg-store-charcoal text-white hover:bg-black focus-visible:outline-store-charcoal',
+  'admin-primary': 'bg-navy text-white hover:bg-navy-dark focus-visible:outline-navy',
+  'admin-secondary':
+    'bg-white text-navy border border-admin-line hover:bg-navy-soft focus-visible:outline-navy',
+  'admin-accent': 'bg-saffron text-[#1F1300] hover:bg-[#F08A00] focus-visible:outline-saffron-ink',
+  outline:
+    'bg-transparent text-fg border border-surface-line hover:bg-surface-muted focus-visible:outline-action',
+  ghost: 'bg-transparent text-fg-muted hover:text-fg hover:bg-surface-muted focus-visible:outline-action',
+  danger: 'bg-rose-700 text-white hover:bg-rose-800 focus-visible:outline-rose-700',
+};
+
+const sizes: Record<ButtonSize, string> = {
+  sm: 'h-9 px-3 text-xs rounded-md',
+  md: 'h-11 px-4 text-sm rounded-lg',
+  lg: 'h-12 px-6 text-[15px] rounded-lg',
+  icon: 'h-11 w-11 rounded-lg',
+};
+
+// Exposed so <Link> and <a> can share button styling without nesting elements
+export const buttonClasses = (
+  variant: ButtonVariant = 'primary',
+  size: ButtonSize = 'md',
+  fullWidth = false,
+  className = ''
+) => cn(base, variants[variant], sizes[size], fullWidth && 'w-full', className);
 
 export interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   variant?: ButtonVariant;
@@ -20,55 +56,45 @@ export interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElemen
   icon?: React.ReactNode;
 }
 
-export const Button: React.FC<ButtonProps> = ({
-  variant = 'primary',
-  size = 'md',
-  fullWidth = false,
-  isLoading = false,
-  icon,
-  children,
-  className = '',
-  disabled,
-  ...props
-}) => {
-  // Base classes with accessible focus ring
-  const baseClasses = 'inline-flex items-center justify-center font-bold transition-all active:scale-98 disabled:opacity-60 disabled:cursor-not-allowed disabled:active:scale-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2';
+export const Spinner: React.FC<{ className?: string; label?: string }> = ({ className = '', label }) => (
+  <span role={label ? 'status' : undefined} className="inline-flex items-center">
+    <span
+      aria-hidden="true"
+      className={cn('inline-block h-4 w-4 rounded-full border-2 border-current border-t-transparent animate-spin', className)}
+    />
+    {label && <span className="sr-only">{label}</span>}
+  </span>
+);
 
-  // Variant classes
-  const variantClasses: Record<ButtonVariant, string> = {
-    primary: 'bg-[#FF7A50] hover:bg-[#E05E34] text-white shadow-xs focus-visible:ring-[#FF7A50]',
-    secondary: 'bg-[#FFF7F5] hover:bg-[#FFEFEA] text-[#FF7A50] border border-[#FF7A50]/20 focus-visible:ring-[#FF7A50]',
-    'admin-primary': 'bg-[#2196F3] hover:bg-[#1976D2] active:bg-[#0D47A1] text-white shadow-xs focus-visible:ring-[#2196F3]',
-    'admin-secondary': 'bg-[#E3F2FD] hover:bg-[#BBDEFB] text-[#1976D2] border border-[#87CEEB] focus-visible:ring-[#2196F3]',
-    'admin-accent': 'bg-[#FF9800] hover:bg-[#F57C00] text-slate-950 font-black shadow-xs focus-visible:ring-[#FF9800]',
-    outline: 'border border-slate-300 text-slate-700 hover:bg-slate-50 focus-visible:ring-slate-400',
-    ghost: 'text-slate-600 hover:bg-slate-100 focus-visible:ring-slate-400',
-    danger: 'bg-rose-600 hover:bg-rose-700 text-white focus-visible:ring-rose-500',
-  };
-
-  // Size classes
-  const sizeClasses: Record<ButtonSize, string> = {
-    sm: 'px-3 py-1.5 text-xs rounded-lg gap-1.5 min-h-[36px]',
-    md: 'px-4 py-2.5 text-xs sm:text-sm rounded-xl gap-2 min-h-[44px]',
-    lg: 'px-6 py-3.5 text-sm sm:text-base rounded-2xl gap-2.5 min-h-[50px]',
-  };
-
-  const widthClass = fullWidth ? 'w-full' : '';
-
-  return (
+export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
+  (
+    {
+      variant = 'primary',
+      size = 'md',
+      fullWidth = false,
+      isLoading = false,
+      icon,
+      children,
+      className = '',
+      disabled,
+      type = 'button',
+      ...props
+    },
+    ref
+  ) => (
     <button
+      ref={ref}
+      type={type}
       disabled={disabled || isLoading}
-      className={`${baseClasses} ${variantClasses[variant]} ${sizeClasses[size]} ${widthClass} ${className}`}
+      aria-busy={isLoading || undefined}
+      className={buttonClasses(variant, size, fullWidth, className)}
       {...props}
     >
-      {isLoading ? (
-        <span className="inline-block w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin"></span>
-      ) : icon ? (
-        <span className="shrink-0">{icon}</span>
-      ) : null}
-      <span>{children}</span>
+      {isLoading ? <Spinner /> : icon ? <span className="shrink-0 [&>svg]:h-4 [&>svg]:w-4">{icon}</span> : null}
+      {children}
     </button>
-  );
-};
+  )
+);
+Button.displayName = 'Button';
 
 export default Button;

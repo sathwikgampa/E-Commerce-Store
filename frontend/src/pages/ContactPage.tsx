@@ -2,8 +2,11 @@ import React from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
-import { toast } from 'sonner';
-import { MapPin, Phone, Mail, Clock, MessageSquare, Send } from 'lucide-react';
+import { Clock, MapPin, MessageCircle, Navigation, Phone, Send } from 'lucide-react';
+import { Field, Input, Textarea } from '../components/ui/Field';
+import { Button, buttonClasses } from '../components/ui/Button';
+import { Breadcrumb } from '../components/ui/Breadcrumb';
+import { STORE } from '../components/landing/landingData';
 
 const contactSchema = z.object({
   name: z.string().min(2, { message: 'Name must be at least 2 characters long' }),
@@ -15,180 +18,104 @@ const contactSchema = z.object({
 type ContactFormValues = z.infer<typeof contactSchema>;
 
 const ContactPage: React.FC = () => {
-  const { register, handleSubmit, reset, formState: { errors, isSubmitting } } = useForm<ContactFormValues>({
+  const { register, handleSubmit, formState: { errors } } = useForm<ContactFormValues>({
     resolver: zodResolver(contactSchema),
   });
 
-  const onSubmit = async (values: ContactFormValues) => {
-    // Simulating message submission
-    console.log('Contact Message:', values);
-    toast.success('Your message has been sent!', {
-      description: 'Sri Thirumala owners will reply to your email shortly.',
-    });
-    reset();
+  // There is no inquiry API; the message is handed to WhatsApp, where the store replies.
+  const onSubmit = (values: ContactFormValues) => {
+    const text = `Hi Sri Thirumala Store,\n\n${values.subject}\n\n${values.message}\n\n— ${values.name} (${values.email})`;
+    window.open(`https://wa.me/919949886640?text=${encodeURIComponent(text)}`, '_blank', 'noopener');
   };
 
   return (
-    <div className="w-full mx-auto px-4 sm:px-6 lg:px-8 py-10 lg:py-16 bg-store-accent text-left">
-      
-      {/* Title block */}
-      <div className="text-center max-w-2xl mx-auto mb-14 space-y-3">
-         <h1 className="text-3xl sm:text-4xl font-black text-store-primary tracking-tight">Contact Our Store</h1>
-         <p className="text-xs sm:text-sm text-slate-500 font-semibold leading-relaxed">
-           Have a question about textbook availability, school bags, or bulk guides? Send us a message or visit us on Station Road.
-         </p>
-      </div>
+    <div className="mx-auto max-w-store px-5 pb-16 pt-6 sm:px-8 lg:px-12">
+      <Breadcrumb items={[{ label: 'Home', href: '/home' }, { label: 'Visit the store' }]} />
 
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 items-stretch">
-        
-        {/* Left Side: Store Info */}
-        <div className="lg:col-span-5 flex flex-col justify-between gap-6">
-          <div className="bg-white p-6 sm:p-8 rounded-2xl border border-slate-200/80 shadow-xs space-y-6 relative overflow-hidden group">
-            <div className="absolute top-0 left-0 w-1.5 h-full bg-store-primary"></div>
-            
-            <h2 className="text-lg font-black text-slate-900">Sri Thirumala Store Details</h2>
-            
-            <ul className="space-y-6">
-              
-              {/* Address */}
-              <li className="flex items-start">
-                <div className="bg-store-peach-light p-2.5 rounded-lg text-store-primary mr-4 border border-store-peach-dark">
-                  <MapPin className="w-5 h-5" />
-                </div>
-                <div>
-                  <h3 className="font-bold text-slate-800 text-sm">Our Store Location</h3>
-                  <p className="text-xs text-slate-500 mt-1 leading-relaxed font-semibold">
-                    Station Road, Near Railway Station Area,<br />
-                    Kamareddy, Telangana - 503111
-                  </p>
-                </div>
-              </li>
-              
-              {/* Phone & Whatsapp */}
-              <li className="flex items-start">
-                <div className="bg-store-peach-light p-2.5 rounded-lg text-store-primary mr-4 border border-store-peach-dark">
-                  <Phone className="w-5 h-5" />
-                </div>
-                <div>
-                  <h3 className="font-bold text-slate-800 text-sm">Phone Call &amp; WhatsApp</h3>
-                  <p className="text-xs text-slate-500 mt-1 font-semibold">+91 99498 86640</p>
-                  <a 
-                    href="https://wa.me/919949886640?text=Hi%20Sri%20Thirumala%20Store%2C%20I%20have%20an%20inquiry%20regarding%20books" 
-                    target="_blank" 
-                    rel="noreferrer" 
-                    className="inline-flex items-center gap-1 mt-2 text-xs font-bold text-[#128C7E] hover:underline"
-                  >
-                    <MessageSquare className="w-3.5 h-3.5 fill-current" /> Chat on WhatsApp
-                  </a>
-                </div>
-              </li>
+      <header className="mt-6 max-w-2xl">
+        <h1 className="font-serif text-[34px] font-semibold tracking-tight text-store-charcoal sm:text-[44px]">Visit or contact us</h1>
+        <p className="mt-3 text-[16px] leading-relaxed text-store-charcoal-light">
+          Questions about textbook availability, school bags or bulk orders? Call, message, or drop by the store on Station Road.
+        </p>
+      </header>
 
-              {/* Timing */}
-              <li className="flex items-start">
-                <div className="bg-slate-50 p-2.5 rounded-lg text-slate-700 mr-4 border border-slate-255">
-                  <Clock className="w-5 h-5" />
-                </div>
-                <div>
-                  <h3 className="font-bold text-slate-800 text-sm">Business Operations</h3>
-                  <p className="text-xs text-slate-500 mt-1 font-semibold leading-relaxed">
-                    Monday - Saturday: 9:00 AM - 9:00 PM<br />
-                    Sunday: 10:00 AM - 6:00 PM
-                  </p>
-                </div>
-              </li>
+      <div className="mt-10 grid gap-10 lg:grid-cols-12 lg:gap-12">
+        <div className="space-y-6 lg:col-span-5">
+          <ul className="divide-y divide-store-line rounded-2xl bg-white ring-1 ring-store-line">
+            <li className="flex gap-4 p-5">
+              <MapPin className="mt-0.5 h-5 w-5 shrink-0 text-store-primary" aria-hidden="true" />
+              <div>
+                <h2 className="font-sans text-[15px] font-semibold text-store-charcoal">Store address</h2>
+                <p className="mt-1 text-[14px] leading-relaxed text-store-charcoal-light">
+                  Station Road, near the railway station<br />Kamareddy, Telangana 503111
+                </p>
+                <a href={STORE.mapsHref} target="_blank" rel="noreferrer" className="mt-2 inline-flex items-center gap-1.5 text-[14px] font-medium text-store-primary underline-offset-4 hover:underline">
+                  <Navigation className="h-3.5 w-3.5" aria-hidden="true" /> Get directions
+                </a>
+              </div>
+            </li>
+            <li className="flex gap-4 p-5">
+              <Phone className="mt-0.5 h-5 w-5 shrink-0 text-store-primary" aria-hidden="true" />
+              <div>
+                <h2 className="font-sans text-[15px] font-semibold text-store-charcoal">Phone &amp; WhatsApp</h2>
+                <a href={STORE.phoneHref} className="mt-1 block text-[14px] tabular text-store-charcoal-light hover:text-store-charcoal">{STORE.phoneDisplay}</a>
+                <a href={STORE.whatsappHref} target="_blank" rel="noreferrer" className="mt-2 inline-flex items-center gap-1.5 text-[14px] font-medium text-[#0F766E] underline-offset-4 hover:underline">
+                  <MessageCircle className="h-3.5 w-3.5" aria-hidden="true" /> Chat on WhatsApp
+                </a>
+              </div>
+            </li>
+            <li className="flex gap-4 p-5">
+              <Clock className="mt-0.5 h-5 w-5 shrink-0 text-store-primary" aria-hidden="true" />
+              <div>
+                <h2 className="font-sans text-[15px] font-semibold text-store-charcoal">Opening hours</h2>
+                <dl className="mt-1 grid grid-cols-[auto_1fr] gap-x-4 gap-y-0.5 text-[14px] text-store-charcoal-light">
+                  <dt>Mon – Sat</dt><dd className="tabular">9:00 AM – 9:00 PM</dd>
+                  <dt>Sunday</dt><dd className="tabular">10:00 AM – 6:00 PM</dd>
+                </dl>
+              </div>
+            </li>
+          </ul>
 
-            </ul>
-          </div>
-          
-          {/* Map Section */}
-          <div className="h-64 sm:h-80 bg-slate-200 rounded-2xl border border-slate-200 overflow-hidden relative shadow-inner">
-             <iframe 
-               src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3788.924296683526!2d78.32431697523555!3d18.31885447471852!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3bcc79debd133bd5%3A0xc3f8e5b61e0bbd34!2sKamareddy%2C%20Telangana!5e0!3m2!1sen!2sin!4v1709400000000!5m2!1sen!2sin" 
-               width="100%" 
-               height="100%" 
-               style={{ border: 0, position: 'absolute', top: 0, left: 0 }} 
-               allowFullScreen={true} 
-               loading="lazy" 
-               referrerPolicy="no-referrer-when-downgrade"
-               title="Sri Thirumala Store Map location"
-            ></iframe>
+          <div className="relative aspect-[4/3] overflow-hidden rounded-2xl bg-store-muted ring-1 ring-store-line">
+            <iframe
+              src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3788.924296683526!2d78.32431697523555!3d18.31885447471852!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3bcc79debd133bd5%3A0xc3f8e5b61e0bbd34!2sKamareddy%2C%20Telangana!5e0!3m2!1sen!2sin!4v1709400000000!5m2!1sen!2sin"
+              className="absolute inset-0 h-full w-full border-0"
+              allowFullScreen
+              loading="lazy"
+              referrerPolicy="no-referrer-when-downgrade"
+              title="Map showing Sri Thirumala store in Kamareddy"
+            />
           </div>
         </div>
 
-        {/* Right Side: Message Form */}
-        <div className="lg:col-span-7 bg-white p-6 sm:p-8 rounded-2xl border border-slate-200/80 shadow-xs flex flex-col justify-center">
-          <h2 className="text-lg font-black text-slate-900 border-b border-slate-100 pb-3 mb-6">Send A Query Message</h2>
-          
-          <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-            
-            {/* Name */}
-            <div>
-              <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">Your Name</label>
-              <input 
-                {...register('name')}
-                type="text"
-                className={`w-full px-4 py-3 rounded-xl text-xs font-semibold bg-[#F8FAFC] border outline-none transition focus:bg-white focus:ring-1 focus:ring-primary ${
-                  errors.name ? 'border-rose-300 focus:ring-rose-500' : 'border-slate-200 focus:ring-primary'
-                }`}
-                placeholder="What should we call you?" 
-              />
-              {errors.name && <span className="text-rose-500 text-[10px] font-bold mt-1.5 block">{errors.name.message}</span>}
-            </div>
-
-            {/* Email */}
-            <div>
-              <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">Email Address</label>
-              <input 
-                {...register('email')}
-                type="email"
-                className={`w-full px-4 py-3 rounded-xl text-xs font-semibold bg-[#F8FAFC] border outline-none transition focus:bg-white focus:ring-1 focus:ring-primary ${
-                  errors.email ? 'border-rose-300 focus:ring-rose-500' : 'border-slate-200 focus:ring-primary'
-                }`}
-                placeholder="you@domain.com" 
-              />
-              {errors.email && <span className="text-rose-500 text-[10px] font-bold mt-1.5 block">{errors.email.message}</span>}
-            </div>
-
-            {/* Subject */}
-            <div>
-              <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">Subject</label>
-              <input 
-                {...register('subject')}
-                type="text"
-                className={`w-full px-4 py-3 rounded-xl text-xs font-semibold bg-[#F8FAFC] border outline-none transition focus:bg-white focus:ring-1 focus:ring-primary ${
-                  errors.subject ? 'border-rose-300 focus:ring-rose-500' : 'border-slate-200 focus:ring-primary'
-                }`}
-                placeholder="Availability query, bulk order price, etc." 
-              />
-              {errors.subject && <span className="text-rose-500 text-[10px] font-bold mt-1.5 block">{errors.subject.message}</span>}
-            </div>
-
-            {/* Message */}
-            <div>
-              <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">Your Message</label>
-              <textarea 
-                {...register('message')}
-                rows={4}
-                className={`w-full px-4 py-3 rounded-xl text-xs font-semibold bg-[#F8FAFC] border outline-none transition focus:bg-white focus:ring-1 focus:ring-primary ${
-                  errors.message ? 'border-rose-300 focus:ring-rose-500' : 'border-slate-200 focus:ring-primary'
-                }`}
-                placeholder="Specify the book titles, classes, and bulk numbers you are looking for..." 
-              ></textarea>
-              {errors.message && <span className="text-rose-500 text-[10px] font-bold mt-1.5 block">{errors.message.message}</span>}
-            </div>
-
-            {/* Submit */}
-            <button 
-              type="submit"
-              disabled={isSubmitting}
-              className="w-full flex justify-center items-center gap-2 px-6 py-3.5 bg-store-primary hover:bg-store-primary-dark text-white font-bold rounded-xl shadow-xs transition active:scale-95 text-xs uppercase tracking-wider disabled:bg-slate-200 min-h-[48px]"
-            >
-              <Send className="w-4 h-4 text-white" /> Send Message
-            </button>
-
-          </form>
-        </div>
-
+        <section aria-labelledby="contact-form-title" className="lg:col-span-7">
+          <div className="rounded-2xl bg-white p-6 ring-1 ring-store-line sm:p-8">
+            <h2 id="contact-form-title" className="font-serif text-2xl font-semibold text-store-charcoal">Send us a message</h2>
+            <p className="mt-1.5 text-[14px] text-store-charcoal-light">
+              Your message opens in WhatsApp, ready to send to the store. We usually reply during opening hours.
+            </p>
+            <form onSubmit={handleSubmit(onSubmit)} noValidate className="mt-6 grid gap-5 sm:grid-cols-2">
+              <Field label="Your name" required error={errors.name?.message}>
+                {(a) => <Input {...a} {...register('name')} autoComplete="name" />}
+              </Field>
+              <Field label="Email address" required error={errors.email?.message}>
+                {(a) => <Input {...a} {...register('email')} type="email" autoComplete="email" placeholder="you@example.com" />}
+              </Field>
+              <Field label="Subject" required error={errors.subject?.message} className="sm:col-span-2">
+                {(a) => <Input {...a} {...register('subject')} placeholder="Availability, bulk order pricing…" />}
+              </Field>
+              <Field label="Message" required error={errors.message?.message} className="sm:col-span-2">
+                {(a) => <Textarea {...a} {...register('message')} rows={5} placeholder="Book titles, class or course, and quantities you need" />}
+              </Field>
+              <div className="flex flex-wrap items-center gap-3 sm:col-span-2">
+                <Button type="submit" size="lg">
+                  <Send className="h-4 w-4" aria-hidden="true" /> Send via WhatsApp
+                </Button>
+                <a href={STORE.phoneHref} className={buttonClasses('ghost', 'lg')}>or call {STORE.phoneDisplay}</a>
+              </div>
+            </form>
+          </div>
+        </section>
       </div>
     </div>
   );

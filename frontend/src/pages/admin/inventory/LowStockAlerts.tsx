@@ -1,320 +1,195 @@
-import React, { useState } from 'react';
-import { AlertTriangle, Bell, Edit3, Check, X } from 'lucide-react';
+import React, { useMemo, useState } from 'react';
+import { Link } from 'react-router-dom';
+import { AlertTriangle, Check, CheckCircle2, Pencil, X, XCircle } from 'lucide-react';
 import { toast } from 'sonner';
 import { useInventoryStore } from '../../../store/inventoryStore';
 import { StatusBadge } from '../../../components/inventory/StockBadge';
-import { motion, AnimatePresence } from 'framer-motion';
+import { Panel, StatTile, MonoTag, table } from '../../../components/admin/AdminUI';
+import { SearchInput } from '../../../components/ui/SearchInput';
+import { EmptyState } from '../../../components/ui/EmptyState';
+import { Button, buttonClasses } from '../../../components/ui/Button';
+import { cn } from '../../../lib/utils';
+
+const ORDER = { 'Out of Stock': 0, 'Low Stock': 1, 'In Stock': 2 } as const;
 
 const LowStockAlerts: React.FC = () => {
   const stockMap = useInventoryStore((s) => s.stockMap);
   const setLowStockThreshold = useInventoryStore((s) => s.setLowStockThreshold);
 
+  const [showAll, setShowAll] = useState(false);
+  const [search, setSearch] = useState('');
   const [editingId, setEditingId] = useState<string | null>(null);
-  const [editValue, setEditValue] = useState<number>(0);
+  const [editValue, setEditValue] = useState('');
+  const [editError, setEditError] = useState<string | null>(null);
 
-  const allRecords = Object.values(stockMap).sort((a, b) => {
-    // Sort: Out of Stock first, then Low Stock, then In Stock
-    const order = { 'Out of Stock': 0, 'Low Stock': 1, 'In Stock': 2 };
-    return order[a.status] - order[b.status];
-  });
-
-  const lowStockRecords = allRecords.filter(
-    (r) => r.status === 'Low Stock' || r.status === 'Out of Stock'
+  const all = useMemo(
+    () =>
+      Object.values(stockMap).sort(
+        (a, b) => ORDER[a.status] - ORDER[b.status] || a.currentStock - a.lowStockThreshold - (b.currentStock - b.lowStockThreshold)
+      ),
+    [stockMap]
   );
-  const inStockRecords = allRecords.filter((r) => r.status === 'In Stock');
+  const out = all.filter((r) => r.status === 'Out of Stock').length;
+  const low = all.filter((r) => r.status === 'Low Stock').length;
+  const healthy = all.length - out - low;
 
-  const startEdit = (productId: string, currentThreshold: number) => {
-    setEditingId(productId);
-    setEditValue(currentThreshold);
+  const rows = all
+    .filter((r) => showAll || r.status !== 'In Stock')
+    .filter((r) => {
+      const q = search.toLowerCase();
+      return !q || r.productTitle.toLowerCase().includes(q) || r.sku.toLowerCase().includes(q);
+    });
+
+  const startEdit = (id: string, threshold: number) => {
+    setEditingId(id);
+    setEditValue(String(threshold));
+    setEditError(null);
   };
 
-  const saveEdit = (productId: string) => {
-    if (editValue < 0) {
-      toast.error('Threshold cannot be negative');
+  const saveEdit = (id: string) => {
+    const value = Number(editValue);
+    if (editValue.trim() === '' || !Number.isInteger(value) || value < 0) {
+      setEditError('Enter a whole number of 0 or more.');
       return;
     }
-    setLowStockThreshold(productId, editValue);
-    toast.success('Threshold updated successfully');
+    setLowStockThreshold(id, value);
+    toast.success('Reorder threshold updated');
     setEditingId(null);
   };
 
-  const cancelEdit = () => setEditingId(null);
-
-  const stockBarPercent = (current: number, threshold: number) => {
-    if (threshold === 0) return 100;
-    return Math.min(100, Math.round((current / Math.max(threshold * 2, 1)) * 100));
-  };
-
   return (
-    <div className="p-6 sm:p-8 space-y-6">
-      {/* ── Summary Banner ────────────────────────────────────────────── */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-        {[
-          {
-            label: 'Out of Stock',
-            value: allRecords.filter((r) => r.status === 'Out of Stock').length,
-            bg: 'bg-rose-50 border-rose-200',
-            text: 'text-rose-700',
-            num: 'text-rose-800',
-            icon: <X className="w-4 h-4" />,
-          },
-          {
-            label: 'Low Stock',
-            value: allRecords.filter((r) => r.status === 'Low Stock').length,
-            bg: 'bg-amber-50 border-amber-200',
-            text: 'text-amber-700',
-            num: 'text-amber-800',
-            icon: <AlertTriangle className="w-4 h-4" />,
-          },
-          {
-            label: 'Healthy Stock',
-            value: inStockRecords.length,
-            bg: 'bg-emerald-50 border-emerald-200',
-            text: 'text-emerald-700',
-            num: 'text-emerald-800',
-            icon: <Check className="w-4 h-4" />,
-          },
-        ].map((card) => (
-          <div key={card.label} className={`rounded-2xl border p-5 flex items-center justify-between ${card.bg}`}>
-            <div>
-              <p className={`text-[10px] font-black uppercase tracking-widest ${card.text}`}>{card.label}</p>
-              <p className={`text-3xl font-black mt-1 ${card.num}`}>{card.value}</p>
-              <p className={`text-[10px] font-semibold mt-0.5 ${card.text} opacity-70`}>products</p>
-            </div>
-            <div className={`w-10 h-10 rounded-xl ${card.bg} border ${card.bg.split(' ')[1]} flex items-center justify-center ${card.text}`}>
-              {card.icon}
-            </div>
-          </div>
-        ))}
+    <div className="space-y-6">
+      <div className="grid grid-cols-3 gap-3">
+        <StatTile label="Out of stock" value={out} icon={<XCircle />} tone={out ? 'danger' : 'neutral'} note={out ? 'Cannot be sold' : 'None'} />
+        <StatTile label="Low stock" value={low} icon={<AlertTriangle />} tone={low ? 'warning' : 'neutral'} note={low ? 'At or below threshold' : 'None'} />
+        <StatTile label="Healthy" value={healthy} icon={<CheckCircle2 />} tone="success" note="Above threshold" />
       </div>
 
-      {/* ── Alert Banner ─────────────────────────────────────────────── */}
-      {lowStockRecords.length > 0 && (
-        <div className="bg-amber-50 border border-amber-200 rounded-2xl p-4 flex items-start gap-3">
-          <div className="w-8 h-8 bg-amber-100 rounded-xl flex items-center justify-center shrink-0">
-            <Bell className="w-4 h-4 text-amber-600" />
-          </div>
-          <div>
-            <p className="text-xs font-black text-amber-800">
-              {lowStockRecords.length} product{lowStockRecords.length !== 1 ? 's' : ''} need your attention
-            </p>
-            <p className="text-[10px] text-amber-700 font-semibold mt-0.5">
-              {allRecords.filter((r) => r.status === 'Out of Stock').length} out of stock ·{' '}
-              {allRecords.filter((r) => r.status === 'Low Stock').length} below minimum threshold
-            </p>
-          </div>
-        </div>
-      )}
-
-      {/* ── Alert Products Table ───────────────────────────────────────── */}
-      {lowStockRecords.length > 0 && (
-        <div className="bg-white rounded-2xl border border-slate-200 shadow-xs overflow-hidden">
-          <div className="px-6 py-4 border-b border-slate-100 flex items-center gap-2">
-            <AlertTriangle className="w-4 h-4 text-amber-500" />
-            <h2 className="text-sm font-black text-slate-900">Products Needing Reorder</h2>
-          </div>
-          <div className="overflow-x-auto">
-            <table className="w-full min-w-[700px]">
-              <thead>
-                <tr className="bg-slate-50 text-slate-400 text-[9px] font-bold uppercase tracking-widest">
-                  <th className="px-5 py-3 text-left">Product</th>
-                  <th className="px-5 py-3 text-left">SKU</th>
-                  <th className="px-5 py-3 text-right">Current Stock</th>
-                  <th className="px-5 py-3 text-right">Min Threshold</th>
-                  <th className="px-5 py-3 text-right">Deficit</th>
-                  <th className="px-5 py-3 text-center">Stock Level</th>
-                  <th className="px-5 py-3 text-center">Status</th>
-                  <th className="px-5 py-3 text-center">Edit Threshold</th>
+      <Panel
+        title={showAll ? 'All products' : 'Needs reordering'}
+        description="Thresholds set the stock level at which a product is flagged. Edit them inline."
+        actions={
+          <>
+            <SearchInput size="sm" value={search} onChange={(e) => setSearch(e.target.value)} onClear={() => setSearch('')} placeholder="Product or SKU" aria-label="Search products" wrapperClassName="w-48" />
+            <div role="group" aria-label="Show" className="flex rounded-md border border-admin-line p-0.5 text-[13px]">
+              {[
+                { v: false, label: 'Alerts' },
+                { v: true, label: 'All products' },
+              ].map((o) => (
+                <button
+                  key={o.label}
+                  type="button"
+                  aria-pressed={showAll === o.v}
+                  onClick={() => setShowAll(o.v)}
+                  className={cn('h-7 rounded px-2.5 font-medium', showAll === o.v ? 'bg-navy text-white' : 'text-slate-600 hover:text-slate-900')}
+                >
+                  {o.label}
+                </button>
+              ))}
+            </div>
+          </>
+        }
+      >
+        {all.length === 0 ? (
+          <EmptyState compact icon={<AlertTriangle />} title="No stock records yet" description="Stock data is created when you open Inventory or receive stock." />
+        ) : rows.length === 0 ? (
+          <EmptyState
+            compact
+            icon={<CheckCircle2 />}
+            title={search ? 'No products match' : 'Nothing to reorder'}
+            description={search ? 'Try a different search.' : 'Every product is above its reorder threshold.'}
+          />
+        ) : (
+          <div className={table.wrap}>
+            <table className={`${table.table} min-w-[820px]`}>
+              <thead className={table.thead}>
+                <tr>
+                  <th scope="col" className={table.th}>Product</th>
+                  <th scope="col" className={table.th}>Status</th>
+                  <th scope="col" className={`${table.th} text-right`}>On hand</th>
+                  <th scope="col" className={`${table.th} text-right`}>Threshold</th>
+                  <th scope="col" className={`${table.th} text-right`}>Short by</th>
+                  <th scope="col" className={table.th}>Last updated</th>
+                  <th scope="col" className={`${table.th} text-right`}><span className="sr-only">Actions</span></th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-slate-50">
-                <AnimatePresence>
-                  {lowStockRecords.map((record) => {
-                    const deficit = Math.max(0, record.lowStockThreshold - record.currentStock);
-                    const pct = stockBarPercent(record.currentStock, record.lowStockThreshold);
-                    const isEditing = editingId === record.productId;
-
-                    return (
-                      <motion.tr
-                        key={record.productId}
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: 1 }}
-                        className={`hover:bg-slate-50/60 transition-colors ${
-                          record.status === 'Out of Stock' ? 'bg-rose-50/30' : ''
-                        }`}
-                      >
-                        <td className="px-5 py-4 text-xs font-bold text-slate-800 max-w-[180px]">
-                          <span className="line-clamp-2 leading-tight">{record.productTitle}</span>
-                        </td>
-                        <td className="px-5 py-4">
-                          <span className="text-[9px] font-bold bg-slate-100 text-slate-600 px-2 py-0.5 rounded font-mono">
-                            {record.sku}
-                          </span>
-                        </td>
-                        <td className="px-5 py-4 text-right">
-                          <span className={`text-sm font-black ${
-                            record.currentStock === 0 ? 'text-rose-600' : 'text-amber-600'
-                          }`}>
-                            {record.currentStock}
-                          </span>
-                        </td>
-                        <td className="px-5 py-4 text-right">
-                          {isEditing ? (
+              <tbody className={table.tbody}>
+                {rows.map((r) => {
+                  const short = Math.max(0, r.lowStockThreshold - r.currentStock);
+                  const editing = editingId === r.productId;
+                  return (
+                    <tr key={r.productId} className={cn(table.tr, r.status === 'Out of Stock' && 'bg-rose-50/40')}>
+                      <td className={`${table.td} max-w-[16rem]`}>
+                        <span className="block truncate font-medium text-slate-900">{r.productTitle}</span>
+                        <MonoTag>{r.sku}</MonoTag>
+                      </td>
+                      <td className={table.td}><StatusBadge status={r.status} /></td>
+                      <td className={cn(table.num, 'font-semibold', r.status === 'Out of Stock' ? 'text-rose-700' : r.status === 'Low Stock' ? 'text-amber-700' : '')}>
+                        {r.currentStock}
+                      </td>
+                      <td className={table.num}>
+                        {editing ? (
+                          <form
+                            className="flex items-center justify-end gap-1"
+                            onSubmit={(e) => {
+                              e.preventDefault();
+                              saveEdit(r.productId);
+                            }}
+                          >
+                            <label htmlFor={`thr-${r.productId}`} className="sr-only">Threshold for {r.productTitle}</label>
                             <input
+                              id={`thr-${r.productId}`}
                               type="number"
                               min={0}
+                              inputMode="numeric"
                               value={editValue}
-                              onChange={(e) => setEditValue(Number(e.target.value))}
-                              className="w-16 px-2 py-1 rounded-lg border border-[#0A3D91]/30 text-xs font-black text-center outline-none focus:ring-2 focus:ring-[#0A3D91]/20"
+                              onChange={(e) => setEditValue(e.target.value)}
+                              onKeyDown={(e) => e.key === 'Escape' && setEditingId(null)}
+                              aria-invalid={!!editError}
+                              aria-describedby={editError ? `thr-err-${r.productId}` : undefined}
                               autoFocus
+                              className="h-8 w-20 rounded-md border border-admin-line px-2 text-right text-[13px] tabular focus:border-navy focus:outline-none focus:ring-2 focus:ring-navy/15"
                             />
-                          ) : (
-                            <span className="text-xs font-semibold text-slate-600">
-                              {record.lowStockThreshold}
-                            </span>
-                          )}
-                        </td>
-                        <td className="px-5 py-4 text-right">
-                          <span className={`text-xs font-black ${deficit > 0 ? 'text-rose-600' : 'text-slate-400'}`}>
-                            {deficit > 0 ? `-${deficit}` : '—'}
-                          </span>
-                        </td>
-                        <td className="px-5 py-4">
-                          <div className="flex items-center gap-2 justify-center">
-                            <div className="w-24 h-1.5 bg-slate-100 rounded-full overflow-hidden">
-                              <div
-                                className={`h-full rounded-full transition-all ${
-                                  record.currentStock === 0
-                                    ? 'bg-rose-500'
-                                    : pct < 50
-                                    ? 'bg-amber-500'
-                                    : 'bg-emerald-500'
-                                }`}
-                                style={{ width: `${pct}%` }}
-                              />
-                            </div>
-                            <span className="text-[9px] font-bold text-slate-400 w-8">{pct}%</span>
+                            <button type="submit" className="inline-flex h-8 w-8 items-center justify-center rounded-md text-emerald-700 hover:bg-emerald-50" aria-label="Save threshold">
+                              <Check className="h-4 w-4" />
+                            </button>
+                            <button type="button" onClick={() => setEditingId(null)} className="inline-flex h-8 w-8 items-center justify-center rounded-md text-slate-500 hover:bg-slate-100" aria-label="Cancel">
+                              <X className="h-4 w-4" />
+                            </button>
+                          </form>
+                        ) : (
+                          r.lowStockThreshold
+                        )}
+                        {editing && editError && (
+                          <p id={`thr-err-${r.productId}`} className="mt-1 text-[12px] font-normal text-rose-700">{editError}</p>
+                        )}
+                      </td>
+                      <td className={cn(table.num, short > 0 ? 'font-semibold text-rose-700' : 'text-slate-400')}>{short > 0 ? short : '—'}</td>
+                      <td className={`${table.td} whitespace-nowrap text-[12px] text-slate-500`}>
+                        {new Date(r.lastUpdated).toLocaleDateString('en-IN', { day: 'numeric', month: 'short' })}
+                      </td>
+                      <td className={`${table.td} whitespace-nowrap text-right`}>
+                        {!editing && (
+                          <div className="flex justify-end gap-1">
+                            <Button size="sm" variant="ghost" onClick={() => startEdit(r.productId, r.lowStockThreshold)} aria-label={`Edit threshold for ${r.productTitle}`}>
+                              <Pencil className="h-3.5 w-3.5" aria-hidden="true" /> Threshold
+                            </Button>
+                            {r.status !== 'In Stock' && (
+                              <Link to="/admin/inventory/incoming" className={buttonClasses('admin-secondary', 'sm')}>
+                                Receive stock
+                              </Link>
+                            )}
                           </div>
-                        </td>
-                        <td className="px-5 py-4 text-center">
-                          <StatusBadge status={record.status} />
-                        </td>
-                        <td className="px-5 py-4">
-                          {isEditing ? (
-                            <div className="flex items-center justify-center gap-2">
-                              <button
-                                onClick={() => saveEdit(record.productId)}
-                                className="p-1.5 rounded-lg bg-emerald-50 text-emerald-600 hover:bg-emerald-100 transition"
-                                title="Save"
-                              >
-                                <Check className="w-3.5 h-3.5" />
-                              </button>
-                              <button
-                                onClick={cancelEdit}
-                                className="p-1.5 rounded-lg bg-rose-50 text-rose-500 hover:bg-rose-100 transition"
-                                title="Cancel"
-                              >
-                                <X className="w-3.5 h-3.5" />
-                              </button>
-                            </div>
-                          ) : (
-                            <div className="flex justify-center">
-                              <button
-                                onClick={() => startEdit(record.productId, record.lowStockThreshold)}
-                                className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg border border-slate-200 text-[10px] font-bold text-slate-600 hover:border-[#0A3D91]/30 hover:text-[#0A3D91] hover:bg-[#EAF3FF] transition"
-                              >
-                                <Edit3 className="w-3 h-3" /> Edit
-                              </button>
-                            </div>
-                          )}
-                        </td>
-                      </motion.tr>
-                    );
-                  })}
-                </AnimatePresence>
+                        )}
+                      </td>
+                    </tr>
+                  );
+                })}
               </tbody>
             </table>
           </div>
-        </div>
-      )}
-
-      {/* ── All Products Threshold Table ──────────────────────────────── */}
-      <div className="bg-white rounded-2xl border border-slate-200 shadow-xs overflow-hidden">
-        <div className="px-6 py-4 border-b border-slate-100">
-          <h2 className="text-sm font-black text-slate-900">All Product Thresholds</h2>
-          <p className="text-[10px] text-slate-400 font-semibold mt-0.5">
-            Click the Edit button to change the minimum stock threshold for any product
-          </p>
-        </div>
-        <div className="overflow-x-auto">
-          <table className="w-full min-w-[640px]">
-            <thead>
-              <tr className="bg-slate-50 text-slate-400 text-[9px] font-bold uppercase tracking-widest">
-                <th className="px-5 py-3 text-left">Product</th>
-                <th className="px-5 py-3 text-right">Current</th>
-                <th className="px-5 py-3 text-right">Threshold</th>
-                <th className="px-5 py-3 text-center">Status</th>
-                <th className="px-5 py-3 text-center">Actions</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-slate-50">
-              {allRecords.map((record) => {
-                const isEditing = editingId === record.productId;
-                return (
-                  <tr key={record.productId} className="hover:bg-slate-50/60 transition-colors">
-                    <td className="px-5 py-3 text-xs font-bold text-slate-800 max-w-[200px] truncate">
-                      {record.productTitle}
-                    </td>
-                    <td className="px-5 py-3 text-right text-xs font-black text-slate-900">
-                      {record.currentStock}
-                    </td>
-                    <td className="px-5 py-3 text-right">
-                      {isEditing ? (
-                        <input
-                          type="number"
-                          min={0}
-                          value={editValue}
-                          onChange={(e) => setEditValue(Number(e.target.value))}
-                          className="w-16 px-2 py-1 rounded-lg border border-[#0A3D91]/30 text-xs font-black text-center outline-none focus:ring-2 focus:ring-[#0A3D91]/20 float-right"
-                          autoFocus
-                        />
-                      ) : (
-                        <span className="text-xs font-semibold text-slate-600">
-                          {record.lowStockThreshold}
-                        </span>
-                      )}
-                    </td>
-                    <td className="px-5 py-3 text-center">
-                      <StatusBadge status={record.status} />
-                    </td>
-                    <td className="px-5 py-3">
-                      {isEditing ? (
-                        <div className="flex items-center justify-center gap-2">
-                          <button onClick={() => saveEdit(record.productId)} className="p-1.5 rounded-lg bg-emerald-50 text-emerald-600 hover:bg-emerald-100 transition">
-                            <Check className="w-3.5 h-3.5" />
-                          </button>
-                          <button onClick={cancelEdit} className="p-1.5 rounded-lg bg-rose-50 text-rose-500 hover:bg-rose-100 transition">
-                            <X className="w-3.5 h-3.5" />
-                          </button>
-                        </div>
-                      ) : (
-                        <div className="flex justify-center">
-                          <button
-                            onClick={() => startEdit(record.productId, record.lowStockThreshold)}
-                            className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg border border-slate-200 text-[10px] font-bold text-slate-600 hover:border-[#0A3D91]/30 hover:text-[#0A3D91] hover:bg-[#EAF3FF] transition"
-                          >
-                            <Edit3 className="w-3 h-3" /> Edit
-                          </button>
-                        </div>
-                      )}
-                    </td>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
-        </div>
-      </div>
+        )}
+      </Panel>
     </div>
   );
 };

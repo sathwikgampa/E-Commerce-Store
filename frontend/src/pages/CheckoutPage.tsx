@@ -1,23 +1,20 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import { toast } from 'sonner';
+import { AlertCircle, Banknote, Check, CheckCircle2, MessageCircle, QrCode, Store, Truck } from 'lucide-react';
 import useCartStore from '../store/cartStore';
 import { useSubmitOrder } from '../api/queries';
-import { 
-  ChevronRight, 
-  ShieldCheck, 
-  CreditCard, 
-  Landmark, 
-  CheckCircle, 
-  Building2, 
-  Truck, 
-  MessageCircle, 
-  QrCode,
-  ArrowRight
-} from 'lucide-react';
+import { Order } from '../types';
+import { Field, Input } from '../components/ui/Field';
+import { Button, buttonClasses } from '../components/ui/Button';
+import { ProductCover } from '../components/ProductCard';
+import { STORE, formatPrice } from '../components/landing/landingData';
+import { DeliveryType, FREE_DELIVERY_THRESHOLD, HOME_DELIVERY_FEE, computeTotals } from '../lib/pricing';
+import { saveOrder } from '../lib/orderHistory';
+import { cn } from '../lib/utils';
 
 const checkoutSchema = z.object({
   name: z.string().min(3, { message: 'Full name must be at least 3 characters long' }),
@@ -28,424 +25,354 @@ const checkoutSchema = z.object({
 });
 
 type CheckoutFormValues = z.infer<typeof checkoutSchema>;
+type PlacedOrder = Order & { _id: string; orderNotes?: string };
+
+const Steps: React.FC<{ current: 1 | 2 | 3 }> = ({ current }) => {
+  const steps = ['Cart', 'Details & payment', 'Confirmation'];
+  return (
+    <ol className="flex items-center gap-2 text-[13px]" aria-label="Checkout progress">
+      {steps.map((label, i) => {
+        const n = i + 1;
+        const done = n < current;
+        const active = n === current;
+        return (
+          <li key={label} className="flex items-center gap-2" aria-current={active ? 'step' : undefined}>
+            {i > 0 && <span aria-hidden="true" className="h-px w-5 bg-store-line sm:w-8" />}
+            <span
+              className={cn(
+                'flex h-6 w-6 items-center justify-center rounded-full text-[12px] font-semibold',
+                done ? 'bg-store-charcoal text-white' : active ? 'bg-store-primary text-white' : 'bg-store-muted text-store-charcoal-light'
+              )}
+            >
+              {done ? <Check className="h-3.5 w-3.5" aria-hidden="true" /> : n}
+            </span>
+            <span className={cn(active ? 'font-medium text-store-charcoal' : 'text-store-charcoal-light', !active && 'max-sm:sr-only')}>
+              {label}
+            </span>
+          </li>
+        );
+      })}
+    </ol>
+  );
+};
+
+const OptionCard: React.FC<{
+  name: string;
+  value: string;
+  checked: boolean;
+  onChange: () => void;
+  icon: React.ReactNode;
+  title: string;
+  meta?: React.ReactNode;
+  description: string;
+}> = ({ name, value, checked, onChange, icon, title, meta, description }) => (
+  <label
+    className={cn(
+      'relative flex cursor-pointer gap-3 rounded-xl border bg-white p-4 transition-colors',
+      'has-[:focus-visible]:outline-2 has-[:focus-visible]:outline-offset-2 has-[:focus-visible]:outline-store-primary',
+      checked ? 'border-store-primary ring-1 ring-store-primary' : 'border-store-line hover:border-store-charcoal-light/50'
+    )}
+  >
+    <input type="radio" name={name} value={value} checked={checked} onChange={onChange} className="sr-only" />
+    <span className={cn('mt-0.5 shrink-0', checked ? 'text-store-primary' : 'text-store-charcoal-light')}>{icon}</span>
+    <span className="min-w-0 flex-1">
+      <span className="flex flex-wrap items-center justify-between gap-2">
+        <span className="text-[15px] font-semibold text-store-charcoal">{title}</span>
+        {meta}
+      </span>
+      <span className="mt-1 block text-[13px] leading-relaxed text-store-charcoal-light">{description}</span>
+    </span>
+    <span
+      aria-hidden="true"
+      className={cn(
+        'mt-1 flex h-4 w-4 shrink-0 items-center justify-center rounded-full border',
+        checked ? 'border-store-primary' : 'border-store-charcoal-light/50'
+      )}
+    >
+      {checked && <span className="h-2 w-2 rounded-full bg-store-primary" />}
+    </span>
+  </label>
+);
 
 const CheckoutPage: React.FC = () => {
-  const { items, getTotalPrice, clearCart } = useCartStore();
+  const { items, getTotalPrice, clearCart, couponCode } = useCartStore();
   const navigate = useNavigate();
   const submitOrderMutation = useSubmitOrder();
 
-  const [deliveryType, setDeliveryType] = useState<'pickup' | 'delivery'>('pickup');
+  const [deliveryType, setDeliveryType] = useState<DeliveryType>('pickup');
   const [paymentMethod, setPaymentMethod] = useState<'COD' | 'UPI'>('COD');
-  const [placedOrder, setPlacedOrder] = useState<any | null>(null);
+  const [placedOrder, setPlacedOrder] = useState<PlacedOrder | null>(null);
 
   const subtotal = getTotalPrice();
-  const deliveryFee = deliveryType === 'delivery' && subtotal < 500 ? 40 : 0;
-  const total = subtotal + deliveryFee;
+  const totals = computeTotals(subtotal, couponCode, deliveryType);
 
-  const { register, handleSubmit, formState: { errors, isSubmitting } } = useForm<CheckoutFormValues>({
+  const { register, handleSubmit, formState: { errors } } = useForm<CheckoutFormValues>({
     resolver: zodResolver(checkoutSchema),
-    defaultValues: {
-      pincode: '503111',
-      address: '',
-      orderNotes: '',
-    }
+    defaultValues: { pincode: '503111', address: '', orderNotes: '' },
   });
 
-  // Redirect if cart is empty and no placed order
-  React.useEffect(() => {
-    if (items.length === 0 && !placedOrder) {
-      navigate('/cart');
-    }
+  // Redirect if cart is empty and no order has just been placed
+  useEffect(() => {
+    if (items.length === 0 && !placedOrder) navigate('/cart');
   }, [items, placedOrder, navigate]);
 
-  const onSubmit = async (values: CheckoutFormValues) => {
-    const orderItems = items.map(item => ({
-      title: item.product.title,
-      price: item.product.price,
-      quantity: item.quantity
-    }));
-
-    const orderData = {
+  const onSubmit = (values: CheckoutFormValues) => {
+    const orderData: Order = {
       name: values.name,
       phone: values.phone,
       pincode: values.pincode,
-      address: deliveryType === 'pickup' ? `Store Pickup: Station Road, Kamareddy (Note: ${values.address})` : values.address,
+      address:
+        deliveryType === 'pickup' ? `Store Pickup: Station Road, Kamareddy (Note: ${values.address})` : values.address,
       paymentMethod,
-      items: orderItems,
-      totalAmount: total,
-      status: 'Pending' as const
+      items: items.map((item) => ({ title: item.product.title, price: item.product.price, quantity: item.quantity })),
+      totalAmount: totals.total,
+      status: 'Pending',
+      deliveryType,
+      deliveryFee: totals.deliveryFee,
+      ...(totals.discount > 0 && couponCode ? { couponCode, discountAmount: totals.discount } : {}),
     };
 
     submitOrderMutation.mutate(orderData, {
       onSuccess: (data) => {
-        setPlacedOrder({
+        const placed: PlacedOrder = {
           ...orderData,
-          _id: data._id || `STM-${Date.now().toString().slice(-6)}`,
+          _id: data?._id || `STM-${Date.now().toString().slice(-6)}`,
+          createdAt: data?.createdAt || new Date().toISOString(),
           orderNotes: values.orderNotes,
-        });
+        };
+        saveOrder({ ...placed, createdAt: placed.createdAt! });
+        setPlacedOrder(placed);
         clearCart();
-        toast.success('Order placed successfully!', {
-          description: 'Thank you! Sri Thirumala staff will contact you shortly.',
-        });
+        window.scrollTo(0, 0);
+        toast.success('Order placed', { description: 'The store will contact you to confirm.' });
       },
       onError: (err) => {
         console.error(err);
-        toast.error('Failed to submit order. Please try again.');
-      }
+        toast.error('We couldn’t place your order. Please try again.');
+      },
     });
   };
 
-  // Success Confirmation View
+  // ── Confirmation ──────────────────────────────────────────────────────────
   if (placedOrder) {
+    const waText = encodeURIComponent(
+      `Hi Sri Thirumala Store, I just placed Order #${placedOrder._id} for INR ${placedOrder.totalAmount}. Name: ${placedOrder.name}`
+    );
     return (
-      <div className="w-full mx-auto px-4 sm:px-6 lg:px-8 py-16 bg-store-accent min-h-[80vh] flex flex-col items-center justify-center text-center">
-        <div className="bg-white p-8 sm:p-12 rounded-3xl shadow-sm border border-slate-200/90 max-w-xl w-full space-y-6">
-          <div className="w-16 h-16 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center mx-auto">
-            <CheckCircle className="w-10 h-10" />
-          </div>
-
-          <div className="space-y-1">
-            <span className="text-xs font-black uppercase tracking-wider text-store-primary">Order Confirmed</span>
-            <h1 className="text-2xl sm:text-3xl font-black text-slate-900 font-serif">
-              Thank You, {placedOrder.name}!
-            </h1>
-            <p className="text-xs sm:text-sm text-slate-500 font-medium">
-              Your order reference is <strong className="text-slate-900 font-mono">#{placedOrder._id}</strong>
-            </p>
-          </div>
-
-          <div className="bg-slate-50 p-5 rounded-2xl border border-slate-200 text-left space-y-3 text-xs">
-            <div className="flex justify-between border-b border-slate-200/60 pb-2">
-              <span className="text-slate-500 font-semibold">Payment Method:</span>
-              <span className="font-bold text-slate-900">{placedOrder.paymentMethod}</span>
-            </div>
-            <div className="flex justify-between border-b border-slate-200/60 pb-2">
-              <span className="text-slate-500 font-semibold">Delivery Type:</span>
-              <span className="font-bold text-slate-900">
-                {deliveryType === 'pickup' ? 'Free In-Store Pickup (Station Road)' : 'Doorstep Delivery (Kamareddy)'}
-              </span>
-            </div>
-            <div className="flex justify-between border-b border-slate-200/60 pb-2">
-              <span className="text-slate-500 font-semibold">Total Amount:</span>
-              <span className="font-black text-store-primary text-sm">₹{placedOrder.totalAmount}</span>
-            </div>
-            <div className="pt-1">
-              <span className="text-slate-500 font-semibold block mb-1">Purchased Items:</span>
-              <ul className="space-y-1">
-                {placedOrder.items.map((it: any, i: number) => (
-                  <li key={i} className="flex justify-between font-medium text-slate-700">
-                    <span className="truncate max-w-[260px]">{it.quantity} × {it.title}</span>
-                    <span>₹{it.price * it.quantity}</span>
-                  </li>
-                ))}
-              </ul>
-            </div>
-          </div>
-
-          {/* Direct WhatsApp Confirmation Button */}
-          <a
-            href={`https://wa.me/919949886640?text=Hi%20Sri%20Thirumala%20Store%2C%20I%20just%20placed%20Order%20%23${placedOrder._id}%20for%20INR%20${placedOrder.totalAmount}.%20Name%3A%20${encodeURIComponent(placedOrder.name)}`}
-            target="_blank"
-            rel="noreferrer"
-            className="w-full py-3.5 bg-[#128C7E] hover:bg-[#075E54] text-white text-xs font-bold rounded-xl flex items-center justify-center gap-2 transition shadow-xs"
-          >
-            <MessageCircle className="w-4 h-4" /> Confirm Order via WhatsApp (+91 99498 86640)
-          </a>
-
-          {/* Return to Home Store button */}
-          <Link
-            to="/home"
-            className="btn-primary w-full py-3.5 text-xs shadow-md"
-          >
-            Return to Storefront Home
-          </Link>
+      <div className="mx-auto max-w-2xl px-5 pb-16 pt-8 sm:px-8">
+        <Steps current={3} />
+        <div className="mt-10 text-center">
+          <span className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-emerald-50 text-emerald-700 ring-1 ring-emerald-200">
+            <CheckCircle2 className="h-7 w-7" aria-hidden="true" />
+          </span>
+          <h1 className="mt-5 font-serif text-[32px] font-semibold tracking-tight text-store-charcoal">Thank you, {placedOrder.name}</h1>
+          <p className="mt-2 text-[15px] text-store-charcoal-light">
+            Your order reference is <strong className="font-mono font-semibold text-store-charcoal">#{placedOrder._id}</strong>.
+            The store will call or WhatsApp you to confirm.
+          </p>
         </div>
+
+        <div className="mt-8 rounded-2xl bg-white p-6 ring-1 ring-store-line">
+          <dl className="grid gap-4 text-[14px] sm:grid-cols-2">
+            <div>
+              <dt className="text-store-charcoal-light">Fulfilment</dt>
+              <dd className="mt-0.5 font-medium text-store-charcoal">
+                {placedOrder.deliveryType === 'delivery' ? 'Home delivery in Kamareddy' : 'Pickup — Station Road store'}
+              </dd>
+            </div>
+            <div>
+              <dt className="text-store-charcoal-light">Payment</dt>
+              <dd className="mt-0.5 font-medium text-store-charcoal">
+                {placedOrder.paymentMethod === 'UPI' ? 'UPI (pay once confirmed)' : 'Cash on delivery / at counter'}
+              </dd>
+            </div>
+          </dl>
+          <ul className="mt-5 divide-y divide-store-line border-y border-store-line text-[14px]">
+            {placedOrder.items.map((it, i) => (
+              <li key={i} className="flex justify-between gap-4 py-2.5">
+                <span className="min-w-0 truncate text-store-charcoal">
+                  <span className="tabular text-store-charcoal-light">{it.quantity} ×</span> {it.title}
+                </span>
+                <span className="shrink-0 tabular">{formatPrice(it.price * it.quantity)}</span>
+              </li>
+            ))}
+          </ul>
+          <div className="mt-4 flex justify-between text-[15px] font-semibold">
+            <span>Total</span>
+            <span className="tabular">{formatPrice(placedOrder.totalAmount)}</span>
+          </div>
+        </div>
+
+        <div className="mt-6 grid gap-3 sm:grid-cols-2">
+          <a href={`https://wa.me/919949886640?text=${waText}`} target="_blank" rel="noreferrer" className={buttonClasses('secondary', 'lg', true)}>
+            <MessageCircle className="h-4 w-4 text-[#128C7E]" aria-hidden="true" /> Confirm on WhatsApp
+          </a>
+          <Link to="/home" className={buttonClasses('primary', 'lg', true)}>Continue shopping</Link>
+        </div>
+        <p className="mt-4 text-center text-[13px] text-store-charcoal-light">
+          You can find this order later under <Link to="/dashboard" className="font-medium text-store-primary underline-offset-4 hover:underline">My account</Link>.
+        </p>
       </div>
     );
   }
 
-  if (items.length === 0) {
-    return null;
-  }
+  if (items.length === 0) return null;
 
+  const errorCount = Object.keys(errors).length;
+
+  // ── Checkout form ─────────────────────────────────────────────────────────
   return (
-    <div className="w-full mx-auto px-4 sm:px-6 lg:px-8 py-10 bg-store-accent text-left min-h-screen">
-      
-      {/* Header */}
-      <div className="mb-8">
-        <span className="text-[11px] font-black tracking-widest text-store-primary uppercase">Secure Checkout</span>
-        <h1 className="text-3xl sm:text-4xl font-black text-slate-900 font-serif mt-1">Finalize Your Order</h1>
-        <p className="text-xs sm:text-sm text-slate-600 font-medium mt-1">
-          Specify your contact details to arrange immediate store collection or local delivery in Kamareddy.
-        </p>
-      </div>
+    <div className="mx-auto max-w-store px-5 pb-16 pt-8 sm:px-8 lg:px-12">
+      <Steps current={2} />
+      <h1 className="mt-6 font-serif text-[32px] font-semibold tracking-tight text-store-charcoal sm:text-[38px]">Checkout</h1>
 
-      <div className="flex flex-col lg:flex-row gap-8">
-        
-        {/* Checkout Form */}
-        <div className="flex-1">
-          <form onSubmit={handleSubmit(onSubmit)} className="space-y-8 bg-white p-6 sm:p-8 rounded-3xl border border-slate-200/90 shadow-xs">
-            
-            {/* Delivery Method Selection */}
-            <div className="space-y-4">
-              <h2 className="text-base font-black text-slate-900 border-b border-slate-100 pb-3 font-serif">
-                1. Delivery &amp; Pickup Preference
-              </h2>
-
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <button
-                  type="button"
-                  onClick={() => setDeliveryType('pickup')}
-                  className={`p-4 rounded-2xl border text-left transition flex items-start gap-3 ${
-                    deliveryType === 'pickup'
-                      ? 'border-store-primary bg-store-primary-subtle ring-2 ring-store-primary/20'
-                      : 'border-slate-200 hover:border-slate-300'
-                  }`}
-                >
-                  <Building2 className={`w-5 h-5 shrink-0 mt-0.5 ${deliveryType === 'pickup' ? 'text-store-primary' : 'text-slate-400'}`} />
-                  <div>
-                    <div className="flex items-center gap-2">
-                      <span className="text-xs font-bold text-slate-900">Store Pickup</span>
-                      <span className="text-[10px] font-black bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded-full">FREE</span>
-                    </div>
-                    <p className="text-[11px] text-slate-500 font-medium mt-1">
-                      Pick up directly from Station Road, Kamareddy (Open 9:00 AM - 9:00 PM).
-                    </p>
-                  </div>
-                </button>
-
-                <button
-                  type="button"
-                  onClick={() => setDeliveryType('delivery')}
-                  className={`p-4 rounded-2xl border text-left transition flex items-start gap-3 ${
-                    deliveryType === 'delivery'
-                      ? 'border-store-primary bg-store-primary-subtle ring-2 ring-store-primary/20'
-                      : 'border-slate-200 hover:border-slate-300'
-                  }`}
-                >
-                  <Truck className={`w-5 h-5 shrink-0 mt-0.5 ${deliveryType === 'delivery' ? 'text-store-primary' : 'text-slate-400'}`} />
-                  <div>
-                    <div className="flex items-center gap-2">
-                      <span className="text-xs font-bold text-slate-900">Local Home Delivery</span>
-                      {subtotal >= 500 ? (
-                        <span className="text-[10px] font-black bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded-full">FREE</span>
-                      ) : (
-                        <span className="text-[10px] font-black bg-slate-100 text-slate-700 px-2 py-0.5 rounded-full">₹40</span>
-                      )}
-                    </div>
-                    <p className="text-[11px] text-slate-500 font-medium mt-1">
-                      Door delivery within Kamareddy town within 24-48 hours.
-                    </p>
-                  </div>
-                </button>
-              </div>
+      <form onSubmit={handleSubmit(onSubmit)} noValidate className="mt-8 grid gap-10 lg:grid-cols-12 lg:gap-12">
+        <div className="space-y-10 lg:col-span-7">
+          {errorCount > 0 && (
+            <div role="alert" className="flex gap-3 rounded-xl bg-rose-50 p-4 text-[14px] text-rose-800 ring-1 ring-rose-200">
+              <AlertCircle className="mt-0.5 h-4 w-4 shrink-0" aria-hidden="true" />
+              Please fix the {errorCount === 1 ? 'highlighted field' : `${errorCount} highlighted fields`} below.
             </div>
+          )}
 
-            {/* Contact Details */}
-            <div className="space-y-4 pt-2">
-              <h2 className="text-base font-black text-slate-900 border-b border-slate-100 pb-3 font-serif">
-                2. Contact &amp; Address Information
-              </h2>
-
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">
-                    Full Name *
-                  </label>
-                  <input
-                    type="text"
-                    {...register('name')}
-                    placeholder="Enter student / parent full name"
-                    className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold focus:outline-none focus:border-store-primary focus:bg-white"
-                  />
-                  {errors.name && <p className="text-[11px] text-rose-500 font-bold mt-1">{errors.name.message}</p>}
-                </div>
-
-                <div>
-                  <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">
-                    WhatsApp / Phone Number *
-                  </label>
-                  <input
-                    type="tel"
-                    {...register('phone')}
-                    placeholder="10-digit mobile number"
-                    className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold focus:outline-none focus:border-store-primary focus:bg-white"
-                  />
-                  {errors.phone && <p className="text-[11px] text-rose-500 font-bold mt-1">{errors.phone.message}</p>}
-                </div>
-              </div>
-
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                <div className="sm:col-span-2">
-                  <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">
-                    Address / Landmark / School *
-                  </label>
-                  <input
-                    type="text"
-                    {...register('address')}
-                    placeholder="Colony, street name, house number or landmark"
-                    className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold focus:outline-none focus:border-store-primary focus:bg-white"
-                  />
-                  {errors.address && <p className="text-[11px] text-rose-500 font-bold mt-1">{errors.address.message}</p>}
-                </div>
-
-                <div>
-                  <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">
-                    Postal Code *
-                  </label>
-                  <input
-                    type="text"
-                    {...register('pincode')}
-                    placeholder="503111"
-                    className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold focus:outline-none focus:border-store-primary focus:bg-white"
-                  />
-                  {errors.pincode && <p className="text-[11px] text-rose-500 font-bold mt-1">{errors.pincode.message}</p>}
-                </div>
-              </div>
-
-              <div>
-                <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">
-                  Order Note / Specific Class Edition (Optional)
-                </label>
-                <input
-                  type="text"
-                  {...register('orderNotes')}
-                  placeholder="e.g. Please reserve Telugu Medium edition or provide 2 extra ruled registers"
-                  className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold focus:outline-none focus:border-store-primary focus:bg-white"
-                />
-              </div>
+          <fieldset>
+            <legend className="font-sans text-lg font-semibold text-store-charcoal">1. How would you like to receive it?</legend>
+            <div className="mt-4 grid gap-3 sm:grid-cols-2">
+              <OptionCard
+                name="delivery"
+                value="pickup"
+                checked={deliveryType === 'pickup'}
+                onChange={() => setDeliveryType('pickup')}
+                icon={<Store className="h-5 w-5" />}
+                title="Store pickup"
+                meta={<span className="text-[13px] font-semibold text-emerald-700">Free</span>}
+                description={`Collect from Station Road, Kamareddy. Open ${STORE.hours}.`}
+              />
+              <OptionCard
+                name="delivery"
+                value="delivery"
+                checked={deliveryType === 'delivery'}
+                onChange={() => setDeliveryType('delivery')}
+                icon={<Truck className="h-5 w-5" />}
+                title="Home delivery"
+                meta={
+                  <span className="text-[13px] font-semibold tabular text-store-charcoal">
+                    {subtotal >= FREE_DELIVERY_THRESHOLD ? <span className="text-emerald-700">Free</span> : formatPrice(HOME_DELIVERY_FEE)}
+                  </span>
+                }
+                description="Within Kamareddy town, usually in 24–48 hours."
+              />
             </div>
+          </fieldset>
 
-            {/* Payment Method */}
-            <div className="space-y-4 pt-2">
-              <h2 className="text-base font-black text-slate-900 border-b border-slate-100 pb-3 font-serif">
-                3. Payment Method
-              </h2>
+          <fieldset>
+            <legend className="font-sans text-lg font-semibold text-store-charcoal">2. Contact details</legend>
+            <div className="mt-4 grid gap-5 sm:grid-cols-2">
+              <Field label="Full name" required error={errors.name?.message}>
+                {(a) => <Input {...a} {...register('name')} autoComplete="name" placeholder="Student or parent name" />}
+              </Field>
+              <Field label="Mobile number" required error={errors.phone?.message} hint="We’ll confirm your order on this number.">
+                {(a) => <Input {...a} {...register('phone')} type="tel" inputMode="numeric" autoComplete="tel-national" placeholder="10-digit mobile number" />}
+              </Field>
+              <Field
+                label={deliveryType === 'pickup' ? 'Address or landmark' : 'Delivery address'}
+                required
+                error={errors.address?.message}
+                className="sm:col-span-2"
+              >
+                {(a) => <Input {...a} {...register('address')} autoComplete="street-address" placeholder="House number, street, colony or school landmark" />}
+              </Field>
+              <Field label="Pincode" required error={errors.pincode?.message}>
+                {(a) => <Input {...a} {...register('pincode')} inputMode="numeric" autoComplete="postal-code" maxLength={6} />}
+              </Field>
+              <Field label="Order note" optional>
+                {(a) => <Input {...a} {...register('orderNotes')} placeholder="e.g. Telugu medium edition" />}
+              </Field>
+            </div>
+          </fieldset>
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <button
-                  type="button"
-                  onClick={() => setPaymentMethod('COD')}
-                  className={`p-4 rounded-2xl border text-left transition flex items-start gap-3 ${
-                    paymentMethod === 'COD'
-                      ? 'border-store-primary bg-store-primary-subtle ring-2 ring-store-primary/20'
-                      : 'border-slate-200 hover:border-slate-300'
-                  }`}
-                >
-                  <Landmark className={`w-5 h-5 shrink-0 mt-0.5 ${paymentMethod === 'COD' ? 'text-store-primary' : 'text-slate-400'}`} />
-                  <div>
-                    <span className="text-xs font-bold text-slate-900 block">Cash on Delivery / Pay at Counter</span>
-                    <p className="text-[11px] text-slate-500 font-medium mt-1">
-                      Pay cash upon inspecting textbooks in store or on home arrival.
-                    </p>
-                  </div>
-                </button>
+          <fieldset>
+            <legend className="font-sans text-lg font-semibold text-store-charcoal">3. Payment</legend>
+            <div className="mt-4 grid gap-3 sm:grid-cols-2">
+              <OptionCard
+                name="payment"
+                value="COD"
+                checked={paymentMethod === 'COD'}
+                onChange={() => setPaymentMethod('COD')}
+                icon={<Banknote className="h-5 w-5" />}
+                title="Cash"
+                description="Pay at the counter on pickup, or to the delivery person."
+              />
+              <OptionCard
+                name="payment"
+                value="UPI"
+                checked={paymentMethod === 'UPI'}
+                onChange={() => setPaymentMethod('UPI')}
+                icon={<QrCode className="h-5 w-5" />}
+                title="UPI"
+                description="GPay, PhonePe or Paytm. You pay after the store confirms your order."
+              />
+            </div>
+            {paymentMethod === 'UPI' && (
+              <p className="mt-3 rounded-lg bg-white px-4 py-3 text-[13px] text-store-charcoal-light ring-1 ring-store-line">
+                Store UPI ID: <strong className="font-mono font-semibold text-store-charcoal">srithirumala@upi</strong>. No payment is taken on this page.
+              </p>
+            )}
+          </fieldset>
+        </div>
 
-                <button
-                  type="button"
-                  onClick={() => setPaymentMethod('UPI')}
-                  className={`p-4 rounded-2xl border text-left transition flex items-start gap-3 ${
-                    paymentMethod === 'UPI'
-                      ? 'border-store-primary bg-store-primary-subtle ring-2 ring-store-primary/20'
-                      : 'border-slate-200 hover:border-slate-300'
-                  }`}
-                >
-                  <QrCode className={`w-5 h-5 shrink-0 mt-0.5 ${paymentMethod === 'UPI' ? 'text-store-primary' : 'text-slate-400'}`} />
-                  <div>
-                    <span className="text-xs font-bold text-slate-900 block">Instant UPI (GPay / PhonePe / QR)</span>
-                    <p className="text-[11px] text-slate-500 font-medium mt-1">
-                      Fast contactless payment via any UPI app directly to Sri Thirumala.
-                    </p>
-                  </div>
-                </button>
-              </div>
-
-              {paymentMethod === 'UPI' && (
-                <div className="bg-slate-50 p-4 rounded-2xl border border-slate-200 flex items-center gap-4 text-xs">
-                  <div className="w-14 h-14 bg-white p-1 rounded-xl border border-slate-200 flex items-center justify-center shrink-0">
-                    <QrCode className="w-10 h-10 text-slate-800" />
-                  </div>
-                  <div>
-                    <span className="font-bold text-slate-900 block">Store UPI ID: srithirumala@upi</span>
-                    <span className="text-slate-500 text-[11px] block mt-0.5">
-                      You can pay instantly using Google Pay, PhonePe, or Paytm once your order is confirmed.
+        {/* Summary */}
+        <aside aria-labelledby="checkout-summary" className="lg:col-span-5">
+          <div className="rounded-2xl bg-white p-6 ring-1 ring-store-line lg:sticky lg:top-24">
+            <div className="flex items-center justify-between">
+              <h2 id="checkout-summary" className="font-sans text-lg font-semibold text-store-charcoal">Order summary</h2>
+              <Link to="/cart" className="text-[13px] font-medium text-store-primary underline-offset-4 hover:underline">Edit cart</Link>
+            </div>
+            <ul className="styled-scrollbar mt-4 max-h-72 space-y-3 overflow-y-auto pr-1">
+              {items.map(({ product, quantity }) => (
+                <li key={product._id} className="flex items-center gap-3">
+                  <span className="relative h-14 w-12 shrink-0 overflow-hidden rounded-md bg-store-muted">
+                    <ProductCover product={product} />
+                    <span className="absolute -right-0 -top-0 flex h-5 min-w-5 items-center justify-center rounded-bl-md bg-store-charcoal px-1 text-[11px] font-semibold text-white tabular">
+                      {quantity}
                     </span>
-                  </div>
+                  </span>
+                  <span className="min-w-0 flex-1 truncate text-[14px] text-store-charcoal">{product.title}</span>
+                  <span className="shrink-0 text-[14px] tabular">{formatPrice(product.price * quantity)}</span>
+                </li>
+              ))}
+            </ul>
+
+            <dl className="mt-5 space-y-2.5 border-t border-store-line pt-5 text-[14px]">
+              <div className="flex justify-between">
+                <dt className="text-store-charcoal-light">Subtotal</dt>
+                <dd className="tabular">{formatPrice(totals.subtotal)}</dd>
+              </div>
+              {totals.discount > 0 && (
+                <div className="flex justify-between text-emerald-800">
+                  <dt>Coupon {couponCode} ({totals.discountPercent}%)</dt>
+                  <dd className="tabular">−{formatPrice(totals.discount)}</dd>
                 </div>
               )}
-            </div>
-
-            {/* Place Order CTA Button */}
-            <div className="pt-4 border-t border-slate-100">
-              <button
-                type="submit"
-                disabled={isSubmitting}
-                className="btn-primary w-full py-4 text-sm shadow-md disabled:opacity-60"
-              >
-                {isSubmitting ? 'Placing Order...' : `Confirm & Place Order (₹${total})`}
-              </button>
-            </div>
-
-          </form>
-        </div>
-
-        {/* Order Summary Sidebar */}
-        <div className="w-full lg:w-96 shrink-0 space-y-6">
-          <div className="bg-white rounded-3xl p-6 sm:p-7 shadow-xs border border-slate-200/90 space-y-6">
-            
-            <h2 className="text-lg font-black text-slate-900 font-serif pb-3 border-b border-slate-100">
-              Order Items ({items.length})
-            </h2>
-
-            {/* Scrollable list of items */}
-            <div className="max-h-72 overflow-y-auto space-y-3 styled-scrollbar pr-1 divide-y divide-slate-100">
-              {items.map((it) => (
-                <div key={it.product._id} className="pt-3 first:pt-0 flex gap-3 items-center">
-                  <div className="w-12 h-14 bg-slate-50 rounded-lg p-1 shrink-0 flex items-center justify-center border border-slate-200">
-                    <img src={it.product.image} alt={it.product.title} className="max-h-full max-w-full object-contain" />
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <h4 className="text-xs font-bold text-slate-900 truncate">{it.product.title}</h4>
-                    <span className="text-[11px] text-slate-500 font-medium">Qty: {it.quantity} × ₹{it.product.price}</span>
-                  </div>
-                  <span className="text-xs font-bold text-slate-900">₹{it.product.price * it.quantity}</span>
-                </div>
-              ))}
-            </div>
-
-            {/* Totals Breakdown */}
-            <div className="space-y-2.5 text-xs font-semibold text-slate-600 pt-3 border-t border-slate-200">
               <div className="flex justify-between">
-                <span>Subtotal</span>
-                <span className="text-slate-900 font-bold">₹{subtotal}</span>
+                <dt className="text-store-charcoal-light">{deliveryType === 'pickup' ? 'Store pickup' : 'Home delivery'}</dt>
+                <dd className="tabular">{totals.deliveryFee === 0 ? <span className="text-emerald-700">Free</span> : formatPrice(totals.deliveryFee)}</dd>
               </div>
-              <div className="flex justify-between">
-                <span>Delivery Charge</span>
-                <span>
-                  {deliveryFee === 0 ? (
-                    <span className="text-emerald-700 font-bold">FREE</span>
-                  ) : (
-                    <span className="text-slate-900 font-bold">₹{deliveryFee}</span>
-                  )}
-                </span>
+              <div className="flex items-baseline justify-between border-t border-store-line pt-4">
+                <dt className="font-semibold">Total to pay</dt>
+                <dd className="text-xl font-semibold tabular">{formatPrice(totals.total)}</dd>
               </div>
-              <div className="flex justify-between pt-3 border-t border-slate-200 text-base font-black text-slate-900">
-                <span>Total Amount Due</span>
-                <span className="text-store-primary text-xl">₹{total}</span>
-              </div>
-            </div>
+            </dl>
 
-            {/* Security Guarantee */}
-            <div className="bg-store-accent/70 p-3.5 rounded-xl border border-store-primary/10 text-[11px] text-slate-600 font-medium flex items-center gap-2">
-              <ShieldCheck className="w-4 h-4 text-emerald-600 shrink-0" />
-              <span>Direct verification with Sri Thirumala bookstore staff</span>
-            </div>
-
+            <Button type="submit" size="lg" fullWidth className="mt-6" isLoading={submitOrderMutation.isPending}>
+              {submitOrderMutation.isPending ? 'Placing order…' : `Place order · ${formatPrice(totals.total)}`}
+            </Button>
+            <p className="mt-3 text-center text-[12px] text-store-charcoal-light">
+              Orders are confirmed by phone or WhatsApp before pickup or dispatch.
+            </p>
           </div>
-        </div>
-
-      </div>
-
+        </aside>
+      </form>
     </div>
   );
 };

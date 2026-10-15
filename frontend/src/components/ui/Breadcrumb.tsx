@@ -1,6 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { ChevronRight } from 'lucide-react';
+import { cn } from '../../lib/utils';
 
 export interface BreadcrumbItem {
   label: string;
@@ -13,33 +14,36 @@ export interface BreadcrumbProps {
   className?: string;
 }
 
-export const Breadcrumb: React.FC<BreadcrumbProps> = ({ items, className = '' }) => {
-  return (
-    <nav aria-label="Breadcrumb" className={`flex items-center gap-1.5 text-xs font-semibold text-slate-500 flex-wrap ${className}`}>
+export const Breadcrumb: React.FC<BreadcrumbProps> = ({ items, className = '' }) => (
+  <nav aria-label="Breadcrumb" className={cn('min-w-0 text-[13px] text-fg-muted', className)}>
+    <ol className="flex min-w-0 flex-wrap items-center gap-x-1.5 gap-y-1">
       {items.map((item, idx) => {
         const isLast = idx === items.length - 1;
-
         return (
-          <React.Fragment key={idx}>
-            {idx > 0 && <ChevronRight className="w-3.5 h-3.5 text-slate-400 shrink-0" />}
-            
-            <div className="flex items-center gap-1.5">
-              {item.icon && <span className="shrink-0">{item.icon}</span>}
-              {isLast || !item.href ? (
-                <span className="text-slate-900 font-bold truncate max-w-xs" aria-current={isLast ? 'page' : undefined}>
-                  {item.label}
-                </span>
-              ) : (
-                <Link to={item.href} className="hover:text-store-primary hover:underline transition-colors">
-                  {item.label}
-                </Link>
-              )}
-            </div>
-          </React.Fragment>
+          <li key={`${item.label}-${idx}`} className={cn('flex min-w-0 items-center gap-1.5', isLast && 'flex-1')}>
+            {idx > 0 && <ChevronRight className="h-3.5 w-3.5 shrink-0 opacity-60" aria-hidden="true" />}
+            {item.icon && <span className="shrink-0">{item.icon}</span>}
+            {isLast || !item.href ? (
+              <span
+                className={cn('truncate', isLast && 'font-medium text-fg max-w-[16rem] sm:max-w-md')}
+                aria-current={isLast ? 'page' : undefined}
+                title={item.label}
+              >
+                {item.label}
+              </span>
+            ) : (
+              <Link
+                to={item.href}
+                className="shrink-0 rounded-sm underline-offset-4 transition-colors hover:text-action hover:underline"
+              >
+                {item.label}
+              </Link>
+            )}
+          </li>
         );
       })}
-    </nav>
-  );
-};
+    </ol>
+  </nav>
+);
 
 export default Breadcrumb;

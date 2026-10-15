@@ -52,6 +52,11 @@ export interface Order {
   totalAmount: number;
   status: 'Pending' | 'Confirmed' | 'Delivered';
   createdAt?: string;
+  // Optional pricing breakdown (additive; older orders and the Mongo schema may omit these)
+  deliveryType?: 'pickup' | 'delivery';
+  deliveryFee?: number;
+  couponCode?: string;
+  discountAmount?: number;
 }
 
 export interface Review {

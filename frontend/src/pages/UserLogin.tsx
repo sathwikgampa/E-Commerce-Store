@@ -1,7 +1,13 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { User, Lock, Mail } from 'lucide-react';
+import { useNavigate, Link } from 'react-router-dom';
+import { Eye, EyeOff, Heart, Package, Store } from 'lucide-react';
 import { toast } from 'sonner';
+import { Field, Input } from '../components/ui/Field';
+import { Button } from '../components/ui/Button';
+import { STORE } from '../components/landing/landingData';
+import { cn } from '../lib/utils';
+
+type Errors = Partial<Record<'name' | 'email' | 'password', string>>;
 
 const UserLogin: React.FC = () => {
   const navigate = useNavigate();
@@ -9,119 +15,129 @@ const UserLogin: React.FC = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [name, setName] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
+  const [errors, setErrors] = useState<Errors>({});
+
+  const validate = (): Errors => {
+    const next: Errors = {};
+    if (!isLogin && !name.trim()) next.name = 'Enter your full name.';
+    if (!email.trim()) next.email = 'Enter your email address.';
+    else if (!/^\S+@\S+\.\S+$/.test(email)) next.email = 'Enter a valid email address.';
+    if (!password) next.password = 'Enter your password.';
+    return next;
+  };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    const found = validate();
+    setErrors(found);
+    if (Object.keys(found).length) return;
+
     if (isLogin) {
-      if (email && password) {
-        toast.success(`Welcome back to Sri Thirumala Store!`);
-        navigate('/home');
-      } else {
-        toast.error('Please enter valid email and password.');
-      }
+      toast.success('Welcome back to Sri Thirumala Store!');
+      navigate('/dashboard');
     } else {
-      if (name && email && password) {
-        toast.success(`Account created successfully!`, {
-          description: 'You can now sign in using your credentials.',
-        });
-        setIsLogin(true);
-      } else {
-        toast.error('Please fill in all registration fields.');
-      }
+      toast.success('Account created', { description: 'You can now sign in using your credentials.' });
+      setIsLogin(true);
+      setPassword('');
     }
   };
 
+  const switchMode = (login: boolean) => {
+    setIsLogin(login);
+    setErrors({});
+  };
+
   return (
-    <div className="min-h-[75vh] flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8 bg-store-accent">
-      <div className="max-w-md w-full space-y-8 bg-white p-8 rounded-2xl border border-slate-200/80 shadow-xs text-left">
-        
-        {/* Title details */}
-        <div className="text-center">
-          <div className="bg-store-primary text-white p-3.5 rounded-full inline-block mb-4 shadow-sm">
-            <User className="w-8 h-8 text-white" />
-          </div>
-          <h2 className="text-2xl font-black text-slate-900 tracking-tight">
-             {isLogin ? 'Customer Sign In' : 'Create Account'}
+    <div className="mx-auto grid max-w-store gap-10 px-5 py-10 sm:px-8 lg:grid-cols-2 lg:gap-16 lg:px-12 lg:py-16">
+      {/* Editorial side panel */}
+      <aside className="hidden flex-col justify-between rounded-2xl bg-store-charcoal p-10 text-white lg:flex">
+        <div>
+          <p className="text-[11px] font-medium uppercase tracking-[0.18em] text-white/60">Sri Thirumala · Kamareddy</p>
+          <h2 className="mt-6 text-balance font-serif text-[40px] font-semibold leading-[1.05] tracking-tight">
+            Every textbook for the year, in one place.
           </h2>
-          <p className="mt-1.5 text-xs text-slate-500 font-semibold">
-             {isLogin ? 'Access your wishlist, purchases, and orders.' : 'Join Sri Thirumala to track orders and save favorites.'}
-          </p>
         </div>
-        
-        <form className="mt-8 space-y-4" onSubmit={handleSubmit}>
-          
-          {/* Registration Name field */}
-          {!isLogin && (
-            <div>
-              <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">Full Name</label>
-              <div className="relative">
-                <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none">
-                  <User className="h-4 w-4 text-slate-400" />
-                </div>
-                <input 
-                  type="text" 
-                  required={!isLogin}
-                  className="w-full pl-10 pr-4 py-3 rounded-xl text-xs font-semibold bg-[#F8FAFC] border border-slate-200 outline-none transition focus:bg-white focus:ring-1 focus:ring-store-primary" 
-                  placeholder="e.g. Ramesh Kumar"
-                  value={name}
-                  onChange={(e) => setName(e.target.value)}
-                />
-              </div>
-            </div>
-          )}
-          
-          {/* Email field */}
-          <div>
-            <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">Email Address</label>
-            <div className="relative">
-              <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none">
-                <Mail className="h-4 w-4 text-slate-400" />
-              </div>
-              <input 
-                type="email" 
-                required 
-                className="w-full pl-10 pr-4 py-3 rounded-xl text-xs font-semibold bg-[#F8FAFC] border border-slate-200 outline-none transition focus:bg-white focus:ring-1 focus:ring-store-primary" 
-                placeholder="you@domain.com"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-              />
-            </div>
-          </div>
-          
-          {/* Password field */}
-          <div>
-            <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">Password</label>
-            <div className="relative">
-              <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none">
-                <Lock className="h-4 w-4 text-slate-400" />
-              </div>
-              <input 
-                type="password" 
-                required 
-                className="w-full pl-10 pr-4 py-3 rounded-xl text-xs font-semibold bg-[#F8FAFC] border border-slate-200 outline-none transition focus:bg-white focus:ring-1 focus:ring-store-primary" 
-                placeholder="••••••••"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-              />
-            </div>
-          </div>
+        <ul className="space-y-4 text-[15px] text-white/80">
+          <li className="flex gap-3"><Package className="mt-0.5 h-5 w-5 shrink-0 text-store-coral" aria-hidden="true" /> Track your orders and pickups</li>
+          <li className="flex gap-3"><Heart className="mt-0.5 h-5 w-5 shrink-0 text-store-coral" aria-hidden="true" /> Keep a wishlist for the new term</li>
+          <li className="flex gap-3"><Store className="mt-0.5 h-5 w-5 shrink-0 text-store-coral" aria-hidden="true" /> Collect from {STORE.address.split(',')[0]}</li>
+        </ul>
+      </aside>
 
-          <div className="pt-2">
-            <button type="submit" className="w-full flex justify-center py-3.5 px-4 border border-transparent rounded-xl shadow-xs text-xs font-bold text-white bg-store-primary hover:bg-store-primary-dark transition uppercase tracking-wider focus:outline-none min-h-[48px]">
-              {isLogin ? 'Sign In' : 'Register Now'}
+      {/* Form */}
+      <div className="mx-auto w-full max-w-md lg:py-6">
+        <div role="tablist" aria-label="Account" className="grid grid-cols-2 rounded-lg bg-store-accent-dark p-1">
+          {[
+            { label: 'Sign in', value: true },
+            { label: 'Create account', value: false },
+          ].map((tab) => (
+            <button
+              key={tab.label}
+              type="button"
+              role="tab"
+              aria-selected={isLogin === tab.value}
+              onClick={() => switchMode(tab.value)}
+              className={cn(
+                'h-10 rounded-md text-[14px] font-medium transition-colors',
+                isLogin === tab.value ? 'bg-white text-store-charcoal shadow-card' : 'text-store-charcoal-light hover:text-store-charcoal'
+              )}
+            >
+              {tab.label}
             </button>
-          </div>
+          ))}
+        </div>
 
+        <h1 className="mt-8 font-serif text-[32px] font-semibold tracking-tight text-store-charcoal">
+          {isLogin ? 'Welcome back' : 'Create your account'}
+        </h1>
+        <p className="mt-2 text-[15px] text-store-charcoal-light">
+          {isLogin ? 'Sign in to see your orders, pickups and saved books.' : 'Save textbooks and keep track of your orders.'}
+        </p>
+
+        <form onSubmit={handleSubmit} noValidate className="mt-8 space-y-5">
+          {!isLogin && (
+            <Field label="Full name" required error={errors.name}>
+              {(a) => <Input {...a} autoComplete="name" value={name} onChange={(e) => setName(e.target.value)} />}
+            </Field>
+          )}
+          <Field label="Email address" required error={errors.email}>
+            {(a) => (
+              <Input {...a} type="email" autoComplete="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="you@example.com" />
+            )}
+          </Field>
+          <Field label="Password" required error={errors.password}>
+            {(a) => (
+              <div className="relative">
+                <Input
+                  {...a}
+                  type={showPassword ? 'text' : 'password'}
+                  autoComplete={isLogin ? 'current-password' : 'new-password'}
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  className="pr-12"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword((s) => !s)}
+                  className="absolute right-1 top-1/2 inline-flex h-9 w-9 -translate-y-1/2 items-center justify-center rounded-md text-store-charcoal-light hover:bg-store-accent hover:text-store-charcoal"
+                  aria-label={showPassword ? 'Hide password' : 'Show password'}
+                  aria-pressed={showPassword}
+                >
+                  {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                </button>
+              </div>
+            )}
+          </Field>
+          <Button type="submit" size="lg" fullWidth>
+            {isLogin ? 'Sign in' : 'Create account'}
+          </Button>
         </form>
 
-        <div className="text-center mt-6 text-xs text-slate-500 font-semibold border-t border-slate-100 pt-4">
-          {isLogin ? (
-            <p>New to Sri Thirumala? <button onClick={() => setIsLogin(false)} className="text-store-primary font-bold hover:underline">Create an account</button></p>
-          ) : (
-            <p>Already registered? <button onClick={() => setIsLogin(true)} className="text-store-primary font-bold hover:underline">Sign in instead</button></p>
-          )}
-        </div>
-
+        <p className="mt-6 text-center text-[13px] text-store-charcoal-light">
+          School or college? Use the{' '}
+          <Link to="/portal/login" className="font-medium text-store-primary underline-offset-4 hover:underline">institution portal</Link>.
+        </p>
       </div>
     </div>
   );

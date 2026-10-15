@@ -1,284 +1,172 @@
-import React from 'react';
-import { useNavigate } from 'react-router-dom';
-import {
-  Package,
-  Boxes,
-  PackagePlus,
-  PackageMinus,
-  AlertTriangle,
-  XCircle,
-  IndianRupee,
-  RefreshCw,
-} from 'lucide-react';
+import React, { useMemo, useState } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
+import { AlertTriangle, Boxes, IndianRupee, Package, PackageMinus, PackagePlus, XCircle } from 'lucide-react';
 import { useInventoryStore } from '../../../store/inventoryStore';
 import InventoryStatCard from '../../../components/inventory/InventoryStatCard';
 import InventoryTimeline from '../../../components/inventory/InventoryTimeline';
-import { StockBadge, StatusBadge } from '../../../components/inventory/StockBadge';
+import { StatusBadge } from '../../../components/inventory/StockBadge';
+import { Panel, MonoTag, table } from '../../../components/admin/AdminUI';
+import { SearchInput } from '../../../components/ui/SearchInput';
+import { cn } from '../../../lib/utils';
+import type { StockStatus } from '../../../types/inventory';
+
+const formatCurrency = (val: number) => `₹${val.toLocaleString('en-IN', { maximumFractionDigits: 0 })}`;
 
 const InventoryDashboard: React.FC = () => {
   const navigate = useNavigate();
-  const getDashboardStats = useInventoryStore((s) => s.getDashboardStats);
   const stockMap = useInventoryStore((s) => s.stockMap);
-  const stats = getDashboardStats();
-  const allRecords = Object.values(stockMap).sort((a, b) => b.currentStock - a.currentStock);
+  const transactions = useInventoryStore((s) => s.transactions);
+  const getDashboardStats = useInventoryStore((s) => s.getDashboardStats);
+  // Recompute whenever stock or transactions change
+  const stats = useMemo(() => getDashboardStats(), [getDashboardStats, stockMap, transactions]);
 
-  const formatCurrency = (val: number) =>
-    `₹${val.toLocaleString('en-IN', { maximumFractionDigits: 0 })}`;
+  const [search, setSearch] = useState('');
+  const [statusFilter, setStatusFilter] = useState<'' | StockStatus>('');
 
-  const STAT_CARDS = [
-    {
-      label: 'Total Products',
-      value: stats.totalProducts,
-      icon: Package,
-      iconBg: 'bg-blue-50',
-      iconColor: 'text-blue-600',
-      subValue: 'Active catalog items',
-      accent: true,
-    },
-    {
-      label: 'Total Units in Stock',
-      value: stats.totalUnitsInStock.toLocaleString('en-IN'),
-      icon: Boxes,
-      iconBg: 'bg-indigo-50',
-      iconColor: 'text-indigo-600',
-      subValue: 'Across all products',
-    },
-    {
-      label: "Today's Incoming",
-      value: `+${stats.todayIncoming}`,
-      icon: PackagePlus,
-      iconBg: 'bg-emerald-50',
-      iconColor: 'text-emerald-600',
-      subValue: 'Units received today',
-      trend: stats.todayIncoming > 0
-        ? { direction: 'up' as const, label: 'Active today' }
-        : { direction: 'neutral' as const, label: 'No activity today' },
-    },
-    {
-      label: "Today's Outgoing",
-      value: `-${stats.todayOutgoing}`,
-      icon: PackageMinus,
-      iconBg: 'bg-rose-50',
-      iconColor: 'text-rose-600',
-      subValue: 'Units dispatched today',
-      trend: stats.todayOutgoing > 0
-        ? { direction: 'down' as const, label: 'Stock deducted today' }
-        : { direction: 'neutral' as const, label: 'No dispatches today' },
-    },
-    {
-      label: 'Low Stock Products',
-      value: stats.lowStockProducts,
-      icon: AlertTriangle,
-      iconBg: 'bg-amber-50',
-      iconColor: 'text-amber-500',
-      subValue: 'Below minimum threshold',
-      trend: stats.lowStockProducts > 0
-        ? { direction: 'down' as const, label: 'Needs reordering' }
-        : undefined,
-    },
-    {
-      label: 'Out of Stock',
-      value: stats.outOfStockProducts,
-      icon: XCircle,
-      iconBg: 'bg-rose-50',
-      iconColor: 'text-rose-500',
-      subValue: 'Products unavailable',
-      trend: stats.outOfStockProducts > 0
-        ? { direction: 'down' as const, label: 'Action required' }
-        : undefined,
-    },
-    {
-      label: 'Inventory Value',
-      value: formatCurrency(stats.inventoryValue),
-      icon: IndianRupee,
-      iconBg: 'bg-[#D4AF37]/10',
-      iconColor: 'text-[#D4AF37]',
-      subValue: 'Total at cost price',
-      accent: true,
-    },
-  ];
+  const records = useMemo(
+    () =>
+      Object.values(stockMap)
+        .filter((r) => !statusFilter || r.status === statusFilter)
+        .filter((r) => {
+          const q = search.toLowerCase();
+          return !q || r.productTitle.toLowerCase().includes(q) || r.sku.toLowerCase().includes(q);
+        })
+        .sort((a, b) => a.currentStock - a.lowStockThreshold - (b.currentStock - b.lowStockThreshold)),
+    [stockMap, search, statusFilter]
+  );
 
   return (
-    <div className="p-6 sm:p-8 space-y-8">
-      {/* ── Stat Cards Grid ────────────────────────────────────────── */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-        {STAT_CARDS.map((card, i) => (
-          <InventoryStatCard
-            key={card.label}
-            index={i}
-            label={card.label}
-            value={card.value}
-            subValue={card.subValue}
-            icon={card.icon}
-            iconBg={card.iconBg}
-            iconColor={card.iconColor}
-            trend={card.trend}
-            accent={card.accent}
-            onClick={
-              card.label === 'Low Stock Products'
-                ? () => navigate('/admin/inventory/alerts')
-                : undefined
-            }
-          />
-        ))}
+    <div className="space-y-6">
+      <div className="grid grid-cols-2 gap-3 md:grid-cols-4 xl:grid-cols-7">
+        <InventoryStatCard label="Products (SKUs)" value={stats.totalProducts} icon={Package} iconBg="bg-navy-soft" iconColor="text-navy" accent />
+        <InventoryStatCard label="Units in stock" value={stats.totalUnitsInStock.toLocaleString('en-IN')} icon={Boxes} iconBg="bg-slate-100" iconColor="text-slate-600" />
+        <InventoryStatCard
+          label="Stock value"
+          value={formatCurrency(stats.inventoryValue)}
+          subValue="At average cost"
+          icon={IndianRupee}
+          iconBg="bg-saffron-soft"
+          iconColor="text-saffron-ink"
+          accent
+        />
+        <InventoryStatCard
+          label="Received today"
+          value={stats.todayIncoming}
+          subValue="Units"
+          icon={PackagePlus}
+          iconBg="bg-emerald-50"
+          iconColor="text-emerald-700"
+          onClick={() => navigate('/admin/inventory/incoming')}
+        />
+        <InventoryStatCard
+          label="Removed today"
+          value={stats.todayOutgoing}
+          subValue="Units"
+          icon={PackageMinus}
+          iconBg="bg-slate-100"
+          iconColor="text-slate-600"
+          onClick={() => navigate('/admin/inventory/outgoing')}
+        />
+        <InventoryStatCard
+          label="Low stock"
+          value={stats.lowStockProducts}
+          icon={AlertTriangle}
+          iconBg="bg-amber-50"
+          iconColor="text-amber-700"
+          trend={stats.lowStockProducts ? { direction: 'down', label: 'Below threshold' } : { direction: 'neutral', label: 'None' }}
+          onClick={() => navigate('/admin/inventory/alerts')}
+        />
+        <InventoryStatCard
+          label="Out of stock"
+          value={stats.outOfStockProducts}
+          icon={XCircle}
+          iconBg="bg-rose-50"
+          iconColor="text-rose-700"
+          trend={stats.outOfStockProducts ? { direction: 'down', label: 'Reorder now' } : { direction: 'neutral', label: 'None' }}
+          onClick={() => navigate('/admin/inventory/alerts')}
+        />
       </div>
 
-      {/* ── Main Content: Table + Timeline ──────────────────────────── */}
-      <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
-
-        {/* Recent Activity Table */}
-        <div className="xl:col-span-2 bg-white rounded-2xl border border-slate-200 shadow-xs overflow-hidden">
-          <div className="flex items-center justify-between px-6 py-4 border-b border-slate-100">
-            <div>
-              <h2 className="text-sm font-black text-slate-900 tracking-tight">Recent Stock Activity</h2>
-              <p className="text-[10px] text-slate-400 font-semibold mt-0.5">Last 25 transactions</p>
-            </div>
-            <button
-              onClick={() => navigate('/admin/inventory/history')}
-              className="text-[10px] font-bold text-[#0A3D91] hover:underline"
-            >
-              View All →
-            </button>
-          </div>
-
-          <div className="overflow-x-auto">
-            <table className="w-full text-left min-w-[700px]">
-              <thead>
-                <tr className="bg-slate-50 text-slate-400 text-[9px] font-bold uppercase tracking-widest">
-                  <th className="px-5 py-3">Date</th>
-                  <th className="px-5 py-3">Product</th>
-                  <th className="px-5 py-3">SKU</th>
-                  <th className="px-5 py-3">Action</th>
-                  <th className="px-5 py-3">Stock</th>
-                  <th className="px-5 py-3">By</th>
+      <div className="grid gap-6 xl:grid-cols-[1fr_22rem]">
+        <Panel
+          title="Stock levels"
+          description="Sorted by how close each product is to its reorder threshold."
+          actions={
+            <>
+              <label htmlFor="stock-status" className="sr-only">Filter by status</label>
+              <select
+                id="stock-status"
+                value={statusFilter}
+                onChange={(e) => setStatusFilter(e.target.value as '' | StockStatus)}
+                className="h-9 rounded-md border border-admin-line bg-white px-2 text-[13px] focus:border-navy focus:outline-none focus:ring-2 focus:ring-navy/15"
+              >
+                <option value="">All statuses</option>
+                <option value="In Stock">In stock</option>
+                <option value="Low Stock">Low stock</option>
+                <option value="Out of Stock">Out of stock</option>
+              </select>
+              <SearchInput size="sm" value={search} onChange={(e) => setSearch(e.target.value)} onClear={() => setSearch('')} placeholder="Product or SKU" aria-label="Search stock" wrapperClassName="w-48" />
+            </>
+          }
+        >
+          <div className={table.wrap}>
+            <table className={`${table.table} min-w-[760px]`}>
+              <thead className={table.thead}>
+                <tr>
+                  <th scope="col" className={table.th}>Product</th>
+                  <th scope="col" className={table.th}>SKU</th>
+                  <th scope="col" className={`${table.th} w-48`}>Level vs threshold</th>
+                  <th scope="col" className={`${table.th} text-right`}>On hand</th>
+                  <th scope="col" className={`${table.th} text-right`}>Reserved</th>
+                  <th scope="col" className={`${table.th} text-right`}>Avg cost</th>
+                  <th scope="col" className={table.th}>Status</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-slate-50">
-                {stats.recentTransactions.length === 0 ? (
+              <tbody className={table.tbody}>
+                {records.length === 0 ? (
                   <tr>
-                    <td colSpan={6} className="text-center py-12 text-xs text-slate-400 font-semibold">
-                      No transactions yet
-                    </td>
+                    <td colSpan={7} className="px-4 py-10 text-center text-slate-500">No products match.</td>
                   </tr>
                 ) : (
-                  stats.recentTransactions.map((txn) => (
-                    <tr key={txn.id} className="hover:bg-slate-50/60 transition-colors">
-                      <td className="px-5 py-3 text-[10px] font-bold text-slate-500 whitespace-nowrap">
-                        {new Date(txn.timestamp).toLocaleDateString('en-IN', {
-                          day: 'numeric', month: 'short', year: '2-digit',
-                        })}
-                      </td>
-                      <td className="px-5 py-3 text-xs font-bold text-slate-800 max-w-[200px] truncate">
-                        {txn.productTitle}
-                      </td>
-                      <td className="px-5 py-3">
-                        <span className="text-[9px] font-bold bg-slate-100 text-slate-600 px-2 py-0.5 rounded">
-                          {txn.sku}
-                        </span>
-                      </td>
-                      <td className="px-5 py-3">
-                        <StockBadge type={txn.type} quantity={txn.quantity} />
-                      </td>
-                      <td className="px-5 py-3 text-[10px] font-bold text-slate-500">
-                        <span className="text-slate-400">{txn.previousStock}</span>
-                        <span className="mx-1 text-slate-300">→</span>
-                        <span className="text-slate-800">{txn.currentStock}</span>
-                      </td>
-                      <td className="px-5 py-3 text-[10px] text-slate-500 font-semibold">
-                        {txn.handledBy}
-                      </td>
-                    </tr>
-                  ))
+                  records.map((r) => {
+                    // Bar scale: 2× threshold = full width; the tick marks the threshold
+                    const scale = Math.max(r.lowStockThreshold * 2, r.currentStock, 1);
+                    const pct = Math.round((r.currentStock / scale) * 100);
+                    const tick = Math.round((r.lowStockThreshold / scale) * 100);
+                    return (
+                      <tr key={r.productId} className={table.tr}>
+                        <td className={`${table.td} max-w-[16rem] truncate font-medium text-slate-900`}>{r.productTitle}</td>
+                        <td className={table.td}><MonoTag>{r.sku}</MonoTag></td>
+                        <td className={table.td}>
+                          <div className="relative h-2 w-full rounded-full bg-slate-100" aria-hidden="true">
+                            <div
+                              className={cn('h-2 rounded-full', r.status === 'Out of Stock' ? 'bg-rose-600' : r.status === 'Low Stock' ? 'bg-amber-500' : 'bg-emerald-600')}
+                              style={{ width: `${pct}%` }}
+                            />
+                            <span className="absolute -top-1 h-4 w-px bg-slate-500" style={{ left: `${tick}%` }} />
+                          </div>
+                          <span className="sr-only">{r.currentStock} units, threshold {r.lowStockThreshold}</span>
+                        </td>
+                        <td className={`${table.num} font-semibold`}>{r.currentStock}</td>
+                        <td className={table.num}>{r.reservedStock}</td>
+                        <td className={table.num}>{formatCurrency(r.averageCost ?? 0)}</td>
+                        <td className={table.td}><StatusBadge status={r.status} /></td>
+                      </tr>
+                    );
+                  })
                 )}
               </tbody>
             </table>
           </div>
-        </div>
+        </Panel>
 
-        {/* Activity Timeline */}
-        <div className="bg-white rounded-2xl border border-slate-200 shadow-xs overflow-hidden">
-          <div className="flex items-center justify-between px-6 py-4 border-b border-slate-100">
-            <div>
-              <h2 className="text-sm font-black text-slate-900 tracking-tight">Activity Feed</h2>
-              <p className="text-[10px] text-slate-400 font-semibold mt-0.5">Newest first</p>
-            </div>
-            <RefreshCw className="w-3.5 h-3.5 text-slate-300" />
-          </div>
-          <div className="px-3 py-3 max-h-[480px] overflow-y-auto">
-            <InventoryTimeline transactions={stats.recentTransactions} />
-          </div>
-        </div>
-      </div>
-
-      {/* ── Stock Overview Table ─────────────────────────────────────── */}
-      <div className="bg-white rounded-2xl border border-slate-200 shadow-xs overflow-hidden">
-        <div className="flex items-center justify-between px-6 py-4 border-b border-slate-100">
-          <div>
-            <h2 className="text-sm font-black text-slate-900 tracking-tight">All Product Stock</h2>
-            <p className="text-[10px] text-slate-400 font-semibold mt-0.5">
-              Current inventory snapshot · {allRecords.length} products
-            </p>
-          </div>
-        </div>
-
-        <div className="overflow-x-auto">
-          <table className="w-full text-left min-w-[800px]">
-            <thead>
-              <tr className="bg-slate-50 text-slate-400 text-[9px] font-bold uppercase tracking-widest">
-                <th className="px-5 py-3">Product</th>
-                <th className="px-5 py-3">SKU</th>
-                <th className="px-5 py-3 text-right">Current Stock</th>
-                <th className="px-5 py-3 text-right">Reserved</th>
-                <th className="px-5 py-3 text-right">Available</th>
-                <th className="px-5 py-3 text-right">Threshold</th>
-                <th className="px-5 py-3 text-right">Avg Cost</th>
-                <th className="px-5 py-3">Status</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-slate-50">
-              {allRecords.map((record) => (
-                <tr key={record.productId} className="hover:bg-slate-50/60 transition-colors">
-                  <td className="px-5 py-3 text-xs font-bold text-slate-800 max-w-[220px] truncate">
-                    {record.productTitle}
-                  </td>
-                  <td className="px-5 py-3">
-                    <span className="text-[9px] font-bold bg-slate-100 text-slate-600 px-2 py-0.5 rounded font-mono">
-                      {record.sku}
-                    </span>
-                  </td>
-                  <td className="px-5 py-3 text-right">
-                    <span className="text-xs font-black text-slate-900">{record.currentStock}</span>
-                  </td>
-                  <td className="px-5 py-3 text-right">
-                    <span className="text-xs font-semibold text-slate-500">{record.reservedStock}</span>
-                  </td>
-                  <td className="px-5 py-3 text-right">
-                    <span className={`text-xs font-black ${
-                      record.currentStock - record.reservedStock === 0
-                        ? 'text-rose-600'
-                        : record.currentStock - record.reservedStock <= record.lowStockThreshold
-                        ? 'text-amber-600'
-                        : 'text-emerald-600'
-                    }`}>
-                      {record.currentStock - record.reservedStock}
-                    </span>
-                  </td>
-                  <td className="px-5 py-3 text-right">
-                    <span className="text-xs font-semibold text-slate-500">{record.lowStockThreshold}</span>
-                  </td>
-                  <td className="px-5 py-3 text-right">
-                    <span className="text-xs font-semibold text-slate-700">
-                      ₹{(record.averageCost ?? 0).toLocaleString('en-IN')}
-                    </span>
-                  </td>
-                  <td className="px-5 py-3">
-                    <StatusBadge status={record.status} />
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+        <Panel
+          title="Recent movements"
+          actions={<Link to="/admin/inventory/history" className="text-[13px] font-medium text-navy hover:underline">Full history</Link>}
+          bodyClassName="max-h-[560px] overflow-y-auto px-3 py-2"
+        >
+          <InventoryTimeline transactions={stats.recentTransactions} />
+        </Panel>
       </div>
     </div>
   );

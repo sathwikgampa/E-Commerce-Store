@@ -1,13 +1,21 @@
 import React from 'react';
+import { cn } from '../../lib/utils';
 
-export type BadgeVariant = 
-  | 'warm'         // Storefront Warm Orange
-  | 'peach'        // Soft Peach
-  | 'admin-blue'   // Admin Themed Deep Blue
-  | 'saffron'      // Admin Saffron Accent
-  | 'emerald'      // Success / In stock
-  | 'rose'         // Out of stock / Alert
-  | 'slate';       // Neutral grey
+export type BadgeVariant =
+  | 'neutral'      // Ordinary metadata
+  | 'success'      // In stock, delivered, healthy
+  | 'warning'      // Attention needed, low stock, pending
+  | 'danger'       // Out of stock, critical
+  | 'info'         // Navy informational
+  | 'ember'        // Storefront highlight (discounts, store specials)
+  | 'saffron'      // Portal highlight
+  // Legacy names kept for compatibility
+  | 'warm'
+  | 'peach'
+  | 'admin-blue'
+  | 'emerald'
+  | 'rose'
+  | 'slate';
 
 export interface BadgeProps extends React.HTMLAttributes<HTMLSpanElement> {
   variant?: BadgeVariant;
@@ -15,69 +23,43 @@ export interface BadgeProps extends React.HTMLAttributes<HTMLSpanElement> {
   dot?: boolean;
 }
 
+const styles: Record<BadgeVariant, { box: string; dot: string }> = {
+  neutral: { box: 'bg-slate-100 text-slate-700 border-slate-200', dot: 'bg-slate-400' },
+  success: { box: 'bg-emerald-50 text-emerald-800 border-emerald-200', dot: 'bg-emerald-600' },
+  warning: { box: 'bg-amber-50 text-amber-800 border-amber-200', dot: 'bg-amber-500' },
+  danger: { box: 'bg-rose-50 text-rose-800 border-rose-200', dot: 'bg-rose-600' },
+  info: { box: 'bg-navy-soft text-navy border-navy-line', dot: 'bg-navy' },
+  ember: { box: 'bg-store-primary-subtle text-store-primary-dark border-store-coral-soft', dot: 'bg-store-coral' },
+  saffron: { box: 'bg-saffron-soft text-saffron-ink border-[#FFE0B2]', dot: 'bg-saffron' },
+  warm: { box: 'bg-store-primary-subtle text-store-primary-dark border-store-coral-soft', dot: 'bg-store-coral' },
+  peach: { box: 'bg-store-accent text-store-charcoal-light border-store-line', dot: 'bg-store-coral' },
+  'admin-blue': { box: 'bg-navy-soft text-navy border-navy-line', dot: 'bg-navy' },
+  emerald: { box: 'bg-emerald-50 text-emerald-800 border-emerald-200', dot: 'bg-emerald-600' },
+  rose: { box: 'bg-rose-50 text-rose-800 border-rose-200', dot: 'bg-rose-600' },
+  slate: { box: 'bg-slate-100 text-slate-700 border-slate-200', dot: 'bg-slate-400' },
+};
+
 export const Badge: React.FC<BadgeProps> = ({
-  variant = 'warm',
-  pill = true,
+  variant = 'neutral',
+  pill = false,
   dot = false,
   children,
   className = '',
   ...props
 }) => {
-  const variantClasses: Record<BadgeVariant, { bg: string; text: string; border: string; dotColor: string }> = {
-    warm: {
-      bg: 'bg-[#FFF0EB]',
-      text: 'text-[#E05E34]',
-      border: 'border-[#FF7A50]/20',
-      dotColor: 'bg-[#FF7A50]',
-    },
-    peach: {
-      bg: 'bg-[#FFF7F5]',
-      text: 'text-[#FF7A50]',
-      border: 'border-[#FFEFEA]',
-      dotColor: 'bg-[#FF7A50]',
-    },
-    'admin-blue': {
-      bg: 'bg-[#E3F2FD]',
-      text: 'text-[#1976D2]',
-      border: 'border-[#87CEEB]',
-      dotColor: 'bg-[#2196F3]',
-    },
-    saffron: {
-      bg: 'bg-[#FFF3E0]',
-      text: 'text-[#E65100]',
-      border: 'border-[#FFE0B2]',
-      dotColor: 'bg-[#FF9800]',
-    },
-    emerald: {
-      bg: 'bg-emerald-50',
-      text: 'text-emerald-700',
-      border: 'border-emerald-200',
-      dotColor: 'bg-emerald-500',
-    },
-    rose: {
-      bg: 'bg-rose-50',
-      text: 'text-rose-700',
-      border: 'border-rose-200',
-      dotColor: 'bg-rose-500',
-    },
-    slate: {
-      bg: 'bg-slate-100',
-      text: 'text-slate-700',
-      border: 'border-slate-200',
-      dotColor: 'bg-slate-400',
-    },
-  };
-
-  const current = variantClasses[variant];
-  const radius = pill ? 'rounded-full' : 'rounded-md';
-
+  const current = styles[variant];
   return (
     <span
-      className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 text-[10px] sm:text-xs font-bold uppercase tracking-wider border ${current.bg} ${current.text} ${current.border} ${radius} ${className}`}
+      className={cn(
+        'inline-flex items-center gap-1.5 border px-2 py-0.5 text-[11px] font-semibold leading-4 whitespace-nowrap',
+        pill ? 'rounded-full' : 'rounded-md',
+        current.box,
+        className
+      )}
       {...props}
     >
-      {dot && <span className={`w-1.5 h-1.5 rounded-full ${current.dotColor} shrink-0`}></span>}
-      <span>{children}</span>
+      {dot && <span aria-hidden="true" className={cn('h-1.5 w-1.5 shrink-0 rounded-full', current.dot)} />}
+      {children}
     </span>
   );
 };
